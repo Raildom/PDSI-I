@@ -47,16 +47,7 @@ AS $$
    LIMIT 1
 $$;
 
--- 4. Seed: funerária demo + vincular planos existentes
-INSERT INTO public.funerarias (id, razao_social, cnpj, telefone, email, endereco)
-VALUES ('00000000-0000-0000-0000-000000000001',
-        'Saint Luzia Matriz', '00.000.000/0001-00',
-        '(86) 0000-0000', 'contato@saintluzia.com',
-        'Picos - PI');
 
-UPDATE public.planos
-   SET funeraria_id = '00000000-0000-0000-0000-000000000001'
- WHERE funeraria_id IS NULL;
 
 -- 5. RLS — Funerarias
 CREATE POLICY "Funerárias visíveis publicamente"
