@@ -30,6 +30,19 @@ class FunerariasModel:
         return bool(getattr(r, "data", None))
 
     @staticmethod
+    def existe_ativa(funeraria_id: str) -> bool:
+        sb = get_supabase()
+        r = (
+            sb.table("funerarias")
+            .select("id")
+            .eq("id", funeraria_id)
+            .eq("ativo", True)
+            .limit(1)
+            .execute()
+        )
+        return bool(getattr(r, "data", None))
+
+    @staticmethod
     def listar_admin_user_ids(funeraria_id: str) -> list[str]:
         sb = get_supabase()
         r = (
