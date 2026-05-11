@@ -30,6 +30,7 @@ class AdminModel:
     @staticmethod
     def listar_clientes(funeraria_id: str):
         sb = get_supabase()
+<<<<<<< HEAD
         roles = (
             sb.table("user_roles")
             .select("user_id")
@@ -40,11 +41,16 @@ class AdminModel:
         if not cliente_ids:
             return []
 
+=======
+>>>>>>> fd5c336b2609f31b0a62865c003a05765be9ec04
         result = (
             sb.table("profiles")
             .select("user_id,nome,email,created_at")
             .eq("funeraria_id", funeraria_id)
+<<<<<<< HEAD
             .in_("user_id", cliente_ids)
+=======
+>>>>>>> fd5c336b2609f31b0a62865c003a05765be9ec04
             .order("created_at", desc=True)
             .execute()
         )

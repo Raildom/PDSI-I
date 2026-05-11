@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from ..config.deps import get_current_user, require_admin
+from ..config.deps import get_current_user, require_admin, get_admin_funeraria_id, get_supabase
 from ..models.documentos_model import DocumentosModel
 from ..models.auth_model import AuthModel
 from ..views.documentos_view import DocumentoStatusUpdate
@@ -44,6 +44,16 @@ async def validar_documento(doc_id: str, body: DocumentoStatusUpdate, user: dict
     if body.status not in ("aprovado", "rejeitado"):
         raise HTTPException(status_code=400, detail="Status deve ser 'aprovado' ou 'rejeitado'")
 
+    doc = DocumentosModel.get_by_id(doc_id)
+    if not doc.data:
+        raise HTTPException(status_code=404, detail="Documento não encontrado")
+
+    sb = get_supabase()
+    profile = sb.table("profiles").select("funeraria_id").eq("user_id", doc.data["user_id"]).maybe_single().execute()
+    doc_funeraria = getattr(profile, "data", None) and profile.data.get("funeraria_id")
+    if doc_funeraria != user["funeraria_id"]:
+        raise HTTPException(status_code=403, detail="Sem permissão para este documento")
+
     update_data = {"status": body.status, "validado_por": user["id"], "validado_em": datetime.now().isoformat()}
     if body.observacao_admin is not None:
         update_data["observacao_admin"] = body.observacao_admin
@@ -64,6 +74,15 @@ async def download_documento(doc_id: str, user: dict = Depends(get_current_user)
     is_admin = "admin" in role_list
     if doc.data["user_id"] != user["id"] and not is_admin:
         raise HTTPException(status_code=403, detail="Sem permissão")
+    if is_admin:
+        admin_funeraria_id = get_admin_funeraria_id(user["id"])
+        if not admin_funeraria_id:
+            raise HTTPException(status_code=403, detail="Admin sem funerária vinculada")
+        sb = get_supabase()
+        profile = sb.table("profiles").select("funeraria_id").eq("user_id", doc.data["user_id"]).maybe_single().execute()
+        doc_funeraria = getattr(profile, "data", None) and profile.data.get("funeraria_id")
+        if doc_funeraria != admin_funeraria_id:
+            raise HTTPException(status_code=403, detail="Sem permissão")
 
     if not doc.data.get("arquivo_path"):
         raise HTTPException(status_code=404, detail="Nenhum arquivo anexado")

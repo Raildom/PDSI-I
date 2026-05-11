@@ -12,7 +12,7 @@ async def listar_planos():
 
 @router.get("/todos")
 async def listar_todos_planos(user: dict = Depends(require_admin)):
-    result = PlanosModel.listar_todos()
+    result = PlanosModel.listar_todos(user["funeraria_id"])
     return result.data or []
 
 @router.post("")
@@ -24,6 +24,7 @@ async def criar_plano(body: PlanoCreate, user: dict = Depends(require_admin)):
         "beneficios": body.beneficios or {},
         "destaque": body.destaque or False,
         "ativo": body.ativo if body.ativo is not None else True,
+        "funeraria_id": user["funeraria_id"],
     }
     result = PlanosModel.criar(payload)
     if not result.data:
@@ -36,7 +37,7 @@ async def atualizar_plano(plano_id: str, body: PlanoUpdate, user: dict = Depends
     if not update_data:
         raise HTTPException(status_code=400, detail="Nenhum dado para atualizar")
 
-    result = PlanosModel.atualizar(plano_id, update_data)
+    result = PlanosModel.atualizar(plano_id, update_data, user["funeraria_id"])
     if not result.data:
         raise HTTPException(status_code=404, detail="Plano não encontrado")
     return result.data[0]
