@@ -72,7 +72,7 @@ class AdminModel:
         result = (
             sb.table("documentos")
             .select("id,user_id,status,arquivo_path,updated_at,tipo_id")
-            .in_("status", ["analise", "pendente", "rejeitado"])
+            .in_("status", ["analise", "pendente"])
             .in_("user_id", user_ids)
             .order("updated_at", desc=True)
             .execute()
