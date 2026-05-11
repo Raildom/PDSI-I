@@ -6,38 +6,88 @@ import os
 
 class CartoesModel:
     @staticmethod
+    def _execute(query, action: str):
+        try:
+            result = query.execute()
+        except Exception as e:
+            raise Exception(f"{action}: {str(e)}")
+        if result is None:
+            raise Exception(f"{action}: resposta vazia do Supabase")
+        err = getattr(result, "error", None)
+        if err:
+            raise Exception(f"{action}: {err}")
+        return result
+
+    @staticmethod
+    def _first_row(result):
+        data = getattr(result, "data", None)
+        if isinstance(data, list):
+            return data[0] if data else None
+        return data
+
+    @staticmethod
     def get_por_usuario(user_id: str):
         sb = get_supabase()
-        return sb.table("cartoes_luto").select("*").eq("user_id", user_id).maybe_single().execute()
+        query = sb.table("cartoes_luto").select("*").eq("user_id", user_id).limit(1)
+        result = CartoesModel._execute(query, "consulta cartoes_luto por usuario")
+        return CartoesModel._first_row(result)
 
     @staticmethod
     def criar(payload: dict):
         sb = get_supabase()
-        return sb.table("cartoes_luto").insert(payload).execute()
+        query = sb.table("cartoes_luto").insert(payload)
+        return CartoesModel._execute(query, "criar cartao")
 
     @staticmethod
     def atualizar(cartao_id: str, user_id: str, update_data: dict):
         sb = get_supabase()
-        return sb.table("cartoes_luto").update(update_data).eq("id", cartao_id).eq("user_id", user_id).execute()
+        query = (
+            sb.table("cartoes_luto")
+            .update(update_data)
+            .eq("id", cartao_id)
+            .eq("user_id", user_id)
+        )
+        return CartoesModel._execute(query, "atualizar cartao")
 
     @staticmethod
     def get_por_slug(slug: str):
         sb = get_supabase()
-        return sb.table("cartoes_luto").select("*, falecidos(nome, data_nascimento, data_falecimento)").eq("slug", slug).maybe_single().execute()
+        query = (
+            sb.table("cartoes_luto")
+            .select("*, falecidos(nome, data_nascimento, data_falecimento)")
+            .eq("slug", slug)
+            .limit(1)
+        )
+        result = CartoesModel._execute(query, "consulta cartoes_luto por slug")
+        return CartoesModel._first_row(result)
 
     @staticmethod
     def get_publico(slug: str):
         sb = get_supabase()
-        return sb.table("cartoes_luto").select("titulo, mensagem, slug, falecidos(nome, data_nascimento, data_falecimento)").eq("slug", slug).eq("publicado", True).maybe_single().execute()
+        query = (
+            sb.table("cartoes_luto")
+            .select("titulo, mensagem, slug, falecidos(nome, data_nascimento, data_falecimento)")
+            .eq("slug", slug)
+            .eq("publicado", True)
+            .limit(1)
+        )
+        result = CartoesModel._execute(query, "consulta cartao publico")
+        return CartoesModel._first_row(result)
 
     @staticmethod
     def upload_storage(file_name: str, file_content: bytes, content_type: str):
         sb = get_supabase()
-        return sb.storage.from_("cartoes").upload(
+        result = sb.storage.from_("cartoes").upload(
             file_name,
             file_content,
             file_options={"content-type": content_type},
         )
+        if result is None:
+            raise Exception("upload storage: resposta vazia do Supabase")
+        err = getattr(result, "error", None)
+        if err:
+            raise Exception(f"upload storage: {err}")
+        return result
 
     @staticmethod
     def gerar_imagem_cartao(data: dict) -> BytesIO:

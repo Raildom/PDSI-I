@@ -11,12 +11,12 @@ router = APIRouter(prefix="/api/cartoes", tags=["Cartão de Luto"])
 @router.get("")
 async def get_cartao(user: dict = Depends(get_current_user)):
     result = CartoesModel.get_por_usuario(user["id"])
-    return result.data
+    return result
 
 @router.post("")
 async def criar_cartao(body: CartaoCreate, user: dict = Depends(get_current_user)):
     existing = CartoesModel.get_por_usuario(user["id"])
-    if existing.data:
+    if existing:
         update_data = {
             "titulo": body.titulo,
             "mensagem": body.mensagem,
@@ -25,8 +25,8 @@ async def criar_cartao(body: CartaoCreate, user: dict = Depends(get_current_user
             "falecido_id": body.falecido_id,
             "foto_path": body.foto_path,
         }
-        result = CartoesModel.atualizar(existing.data["id"], user["id"], update_data)
-        if not result.data:
+        result = CartoesModel.atualizar(existing["id"], user["id"], update_data)
+        if result is None or not result.data:
             raise HTTPException(status_code=400, detail="Erro ao atualizar cartão")
         return result.data[0]
 
@@ -45,7 +45,7 @@ async def criar_cartao(body: CartaoCreate, user: dict = Depends(get_current_user
         else:
             raise HTTPException(status_code=400, detail=f"Erro ao criar cartão: {msg}")
 
-    if not result.data:
+    if result is None or not result.data:
         raise HTTPException(status_code=400, detail="Erro ao criar cartão")
     return result.data[0]
 
@@ -65,14 +65,17 @@ async def atualizar_cartao(cartao_id: str, body: CartaoUpdate, user: dict = Depe
 @router.get("/{slug}/download")
 async def download_cartao(slug: str):
     cartao = CartoesModel.get_por_slug(slug)
-    if not cartao.data:
+    if not cartao:
         raise HTTPException(status_code=404, detail="Cartão não encontrado")
-    buf = CartoesModel.gerar_imagem_cartao(cartao.data)
+    buf = CartoesModel.gerar_imagem_cartao(cartao)
     return StreamingResponse(
         buf,
         media_type="image/png",
         headers={
-            "Content-Disposition": f'attachment; filename="cartao-luto-{slug}-{int(datetime.now().timestamp())}.png"',
+            "Content-Disposition": (
+                f"attachment; filename=\"Cartao de luto\"; "
+                "filename*=UTF-8''Cart%C3%A3o%20de%20luto"
+            ),
             "Cache-Control": "no-store",
         },
     )
@@ -84,19 +87,22 @@ async def upload_foto(arquivo: UploadFile = File(...), user: dict = Depends(get_
     file_name = f"{user['id']}/{int(datetime.now().timestamp())}-{safe_name}"
 
     try:
-        CartoesModel.upload_storage(file_name, file_content, arquivo.content_type or "application/octet-stream")
+        result = CartoesModel.upload_storage(file_name, file_content, arquivo.content_type or "application/octet-stream")
+        err = getattr(result, "error", None)
+        if err:
+            raise Exception(err)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro no upload: {str(e)}")
 
     cartao = CartoesModel.get_por_usuario(user["id"])
-    if cartao.data:
-        CartoesModel.atualizar(cartao.data["id"], user["id"], {"foto_path": file_name})
+    if cartao:
+        CartoesModel.atualizar(cartao["id"], user["id"], {"foto_path": file_name})
 
     return {"path": file_name}
 
 @router.get("/publico/{slug}")
 async def cartao_publico(slug: str):
     result = CartoesModel.get_publico(slug)
-    if not result.data:
+    if not result:
         raise HTTPException(status_code=404, detail="Cartão não encontrado ou não publicado")
-    return result.data
+    return result

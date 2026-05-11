@@ -4,7 +4,20 @@ class AdminModel:
     @staticmethod
     def get_stats(funeraria_id: str):
         sb = get_supabase()
-        perfis = sb.table("profiles").select("user_id", count="exact").eq("funeraria_id", funeraria_id).execute()
+        roles = (
+            sb.table("user_roles")
+            .select("user_id")
+            .eq("role", "cliente")
+            .execute()
+        )
+        cliente_ids = [r["user_id"] for r in (roles.data or []) if r.get("user_id")]
+        perfis = (
+            sb.table("profiles")
+            .select("user_id", count="exact")
+            .eq("funeraria_id", funeraria_id)
+            .in_("user_id", cliente_ids or ["00000000-0000-0000-0000-000000000000"])
+            .execute()
+        )
         user_ids = [p["user_id"] for p in (perfis.data or []) if p.get("user_id")]
 
         if user_ids:
