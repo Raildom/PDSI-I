@@ -1,8 +1,24 @@
 """Dependências compartilhadas — cliente Supabase e autenticação JWT."""
 
+import json
 from fastapi import Depends, HTTPException, Header
 from supabase import create_client, Client
 from . import env
+
+# Compat: postgrest pode esperar pydantic v2 em ambientes com v1
+try:
+    from postgrest.exceptions import APIErrorFromJSON
+
+    if not hasattr(APIErrorFromJSON, "model_validate_json"):
+        @classmethod
+        def _model_validate_json(cls, json_data: str):
+            if hasattr(cls, "parse_raw"):
+                return cls.parse_raw(json_data)
+            return cls.parse_obj(json.loads(json_data))
+
+        APIErrorFromJSON.model_validate_json = _model_validate_json
+except Exception:
+    pass
 
 _admin_client: Client | None = None
 _last_supabase_url: str | None = None
@@ -46,8 +62,23 @@ async def get_current_user(authorization: str = Header(..., alias="Authorization
             raise HTTPException(status_code=401, detail="Sessão expirada. Faça login novamente.")
         raise HTTPException(status_code=401, detail=f"Token inválido: {msg}")
 
+def get_admin_funeraria_id(user_id: str) -> str | None:
+    """Retorna a funeraria_id do admin (se houver)."""
+    sb = get_supabase()
+    result = (
+        sb.table("user_roles")
+        .select("funeraria_id")
+        .eq("user_id", user_id)
+        .eq("role", "admin")
+        .maybe_single()
+        .execute()
+    )
+    if not getattr(result, "data", None):
+        return None
+    return result.data.get("funeraria_id")
+
 async def require_admin(user: dict = Depends(get_current_user)) -> dict:
-    """Verifica se o usuário autenticado possui papel de admin."""
+    """Verifica se o usuário autenticado possui papel de admin e funerária vinculada."""
     sb = get_supabase()
     try:
         result = sb.table("user_roles").select("role").eq("user_id", user["id"]).eq("role", "admin").execute()
@@ -55,7 +86,12 @@ async def require_admin(user: dict = Depends(get_current_user)) -> dict:
         raise HTTPException(status_code=500, detail=f"Falha ao validar admin no Supabase: {str(e)}")
     if not getattr(result, "data", None):
         raise HTTPException(status_code=403, detail="Acesso restrito a administradores")
-    return user
+
+    funeraria_id = get_admin_funeraria_id(user["id"])
+    if not funeraria_id:
+        raise HTTPException(status_code=403, detail="Admin sem funerária vinculada")
+
+    return {**user, "funeraria_id": funeraria_id}
 
 async def require_super_admin(user: dict = Depends(get_current_user)) -> dict:
     """Verifica se o usuário autenticado possui papel de super_admin."""

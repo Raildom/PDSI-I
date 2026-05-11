@@ -14,3 +14,8 @@ class ContratacoesModel:
     def criar(payload: dict):
         sb = get_supabase()
         return sb.table("contratacoes").insert(payload).execute()
+
+    @staticmethod
+    def atualizar_status(contrato_id: str, status: str):
+        sb = get_supabase()
+        return sb.table("contratacoes").update({"status": status}).eq("id", contrato_id).execute()

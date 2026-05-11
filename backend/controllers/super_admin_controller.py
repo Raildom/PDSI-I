@@ -17,6 +17,12 @@ async def listar_funerarias(user: dict = Depends(require_super_admin)):
 
 @router.post("/funerarias")
 async def criar_funeraria(body: FunerariaCreate, user: dict = Depends(require_super_admin)):
+    if not body.email:
+        raise HTTPException(status_code=400, detail="Email da funeraria e obrigatorio")
+    if not body.admin_password or len(body.admin_password) < 8:
+        raise HTTPException(status_code=400, detail="Senha do admin deve ter no minimo 8 caracteres")
+    if not body.admin_nome:
+        raise HTTPException(status_code=400, detail="Nome do admin e obrigatorio")
     payload = {
         "razao_social": body.razao_social,
         "cnpj": body.cnpj,
@@ -25,7 +31,10 @@ async def criar_funeraria(body: FunerariaCreate, user: dict = Depends(require_su
         "endereco": body.endereco,
         "ativo": body.ativo if body.ativo is not None else True,
     }
-    result = FunerariasModel.criar(payload)
+    try:
+        result = FunerariasModel.criar(payload)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao criar funeraria: {str(e)}")
     if not result.data:
         raise HTTPException(status_code=400, detail="Erro ao criar funeraria")
     funeraria = result.data[0]
