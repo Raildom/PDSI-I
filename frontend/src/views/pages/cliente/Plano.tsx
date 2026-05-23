@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { useAuth } from "@/controllers/useAuthController";
 import { useNavigate } from "react-router-dom";

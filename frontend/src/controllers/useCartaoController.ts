@@ -4,9 +4,7 @@ import { toast } from "sonner";
 import { api } from "@/models/api";
 import { supabase } from "@/models/supabase/client";
 import { formatPtBrDate } from "@/views/lib/utils";
-
-const slugify = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+import { slugify } from "@/models/cartaoLutoModel";
 
 export function useCartaoController() {
   const { user } = useAuth();
