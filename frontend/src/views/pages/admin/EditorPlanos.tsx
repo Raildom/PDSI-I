@@ -66,6 +66,16 @@ export default function EditorPlanos() {
   const salvar = async () => {
     setSaving(true);
     try {
+      if (!edit.titulo || edit.titulo.trim().length < 2) {
+        toast.error("Título deve ter pelo menos 2 caracteres");
+        setSaving(false);
+        return;
+      }
+      if (Number(edit.valor_mensal ?? 0) < 0) {
+        toast.error("O valor mensal não pode ser negativo");
+        setSaving(false);
+        return;
+      }
       const payload = {
         titulo: edit.titulo!, descricao: edit.descricao!, valor_mensal: Number(edit.valor_mensal ?? 0),
         destaque: !!edit.destaque, ativo: edit.ativo ?? true, beneficios: beneficiosText.trim() || null,
@@ -108,13 +118,13 @@ export default function EditorPlanos() {
         <section className="rounded-3xl bg-card border border-border p-7 shadow-soft space-y-5 self-start">
           <div className="flex items-center gap-2"><Edit3 className="size-5" /><h2 className="font-serif text-2xl">{selId ? "Editar Plano" : "Novo Plano"}</h2></div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Título</Label><Input value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Custo Mensal (R$)</Label><Input type="number" step="0.01" value={edit.valor_mensal ?? 0} onChange={(e) => setEdit({ ...edit, valor_mensal: Number(e.target.value) })} /></div>
+            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Título</Label><Input maxLength={100} value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Custo Mensal (R$)</Label><Input type="number" step="0.01" min="0" value={edit.valor_mensal ?? 0} onChange={(e) => setEdit({ ...edit, valor_mensal: Number(e.target.value) })} /></div>
           </div>
-          <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Textarea rows={3} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Textarea rows={3} maxLength={300} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
           <div className="space-y-1.5">
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">Benefícios</Label>
-            <Textarea rows={6} value={beneficiosText} onChange={(e) => setBeneficiosText(e.target.value)} />
+            <Textarea rows={6} maxLength={1000} value={beneficiosText} onChange={(e) => setBeneficiosText(e.target.value)} />
             <p className="text-xs text-muted-foreground">Descreva os benefícios em texto livre.</p>
           </div>
           <div className="flex items-center gap-6">

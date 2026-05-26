@@ -22,8 +22,23 @@ export function usePerfilController() {
     });
   }, [user]);
 
+  const isCpfValid = (cpf: string) => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
+  const isTelefoneValid = (tel: string) => /^(\(\d{2}\)\s?)?\d{4,5}-\d{4}$/.test(tel);
+
   const salvar = async () => {
     if (!user) return;
+    if (!form.nome || form.nome.trim().length < 2) {
+      toast.error("Nome deve ter pelo menos 2 caracteres");
+      return;
+    }
+    if (form.cpf && !isCpfValid(form.cpf)) {
+      toast.error("CPF inválido. Use o formato 000.000.000-00");
+      return;
+    }
+    if (form.telefone && !isTelefoneValid(form.telefone)) {
+      toast.error("Telefone inválido. Use o formato (99) 99999-9999");
+      return;
+    }
     setSaving(true);
     try {
       await usuarioModel.update(user.id, {

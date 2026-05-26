@@ -165,7 +165,7 @@ export default function Cadastro() {
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label>
                 <div className="relative">
                   <Mail className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <Input type="email" required className="pl-9 h-11" placeholder="exemplo@email.com" value={form.email} onChange={set("email")} />
+                  <Input type="email" required minLength={5} maxLength={100} className="pl-9 h-11" placeholder="exemplo@email.com" value={form.email} onChange={set("email")} />
                 </div>
               </div>
 
@@ -190,7 +190,7 @@ export default function Cadastro() {
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Senha</Label>
                 <div className="relative">
                   <Lock className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <Input type={showSenha ? "text" : "password"} required minLength={8} className="pl-9 pr-9 h-11" placeholder="Mínimo 8 caracteres" value={form.senha} onChange={set("senha")} />
+                  <Input type={showSenha ? "text" : "password"} required minLength={8} maxLength={128} className="pl-9 pr-9 h-11" placeholder="Mínimo 8 caracteres" value={form.senha} onChange={set("senha")} />
                   <button
                     type="button"
                     aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}

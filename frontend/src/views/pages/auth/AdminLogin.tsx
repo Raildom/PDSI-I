@@ -90,7 +90,7 @@ export default function AdminLogin() {
               <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail profissional</Label>
               <div className="relative">
                 <Mail className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                <Input type="email" required className="pl-9 h-11" placeholder="nome@empresa.com.br"
+                <Input type="email" required minLength={5} maxLength={100} className="pl-9 h-11" placeholder="nome@empresa.com.br"
                   value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function AdminLogin() {
               </div>
               <div className="relative">
                 <Lock className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                <Input type={showSenha ? "text" : "password"} required minLength={8} className="pl-9 pr-9 h-11" placeholder="••••••••"
+                <Input type={showSenha ? "text" : "password"} required minLength={8} maxLength={128} className="pl-9 pr-9 h-11" placeholder="••••••••"
                   value={senha} onChange={(e) => setSenha(e.target.value)} />
                 <button
                   type="button"

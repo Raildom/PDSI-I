@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import InputMask from "react-input-mask";
 import { Camera, IdCard, Loader2, Save } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { Input } from "@/views/components/ui/input";
@@ -36,9 +37,19 @@ export default function Falecido() {
     })();
   }, [user]);
 
+  const isCpfValid = (cpf: string) => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
+
   const salvar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!form.nome || form.nome.trim().length < 2) {
+      toast.error("Nome deve ter pelo menos 2 caracteres");
+      return;
+    }
+    if (form.cpf && !isCpfValid(form.cpf)) {
+      toast.error("CPF inválido. Use o formato 000.000.000-00");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -74,19 +85,19 @@ export default function Falecido() {
           <h2 className="font-serif text-2xl flex items-center gap-2"><IdCard className="size-5" /> Identificação</h2>
           <div className="space-y-1.5">
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nome</Label>
-            <Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome do falecido" />
+            <Input required minLength={2} maxLength={100} value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome do falecido" />
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Data de nascimento</Label><Input type="date" value={form.data_nascimento} onChange={(e) => setForm({ ...form, data_nascimento: e.target.value })} /></div>
             <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Data de falecimento</Label><Input type="date" value={form.data_falecimento} onChange={(e) => setForm({ ...form, data_falecimento: e.target.value })} /></div>
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">CPF</Label><Input value={form.cpf} onChange={(e) => setForm({ ...form, cpf: e.target.value })} placeholder="000.000.000-00" /></div>
-            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Parentesco</Label><Input value={form.parentesco} onChange={(e) => setForm({ ...form, parentesco: e.target.value })} placeholder="Pai, mãe, cônjuge…" /></div>
+            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">CPF</Label><InputMask mask="999.999.999-99" value={form.cpf} onChange={(e) => setForm({ ...form, cpf: e.target.value })}>{(inputProps: any) => (<Input {...inputProps} placeholder="000.000.000-00" />)}</InputMask></div>
+            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Parentesco</Label><Input maxLength={50} value={form.parentesco} onChange={(e) => setForm({ ...form, parentesco: e.target.value })} placeholder="Pai, mãe, cônjuge…" /></div>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Observações</Label><span className="text-xs text-muted-foreground">Opcional</span></div>
-            <Textarea rows={4} value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} placeholder="Informações clínicas ou observações relevantes" />
+            <Textarea rows={4} maxLength={500} value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} placeholder="Informações clínicas ou observações relevantes" />
           </div>
         </section>
 
