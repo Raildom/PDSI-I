@@ -33,6 +33,7 @@ async function request<T = any>(
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers,
+    credentials: "include", // Enviar e receber cookies automaticamente
   });
 
   if (!res.ok) {
