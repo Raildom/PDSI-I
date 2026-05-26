@@ -93,7 +93,7 @@ export default function Falecido() {
         <aside className="rounded-3xl bg-card border border-border p-7 shadow-soft">
           <h2 className="font-serif text-2xl flex items-center gap-2"><Camera className="size-5" /> Foto de Luto</h2>
           <p className="text-sm text-muted-foreground mt-2">A foto pode ser adicionada na etapa de criação do cartão de homenagem.</p>
-          <Link to="/cliente/cartao" className="block mt-4 text-sm font-medium text-foreground hover:underline">Ir para Cartão de Luto →</Link>
+          {/* <Link to="/cliente/cartao" className="block mt-4 text-sm font-medium text-foreground hover:underline">Ir para Cartão de Luto →</Link> */}
         </aside>
       </div>
 
