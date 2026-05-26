@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from ..models.auth_model import AuthModel
 from ..views.auth_view import RegisterRequest, LoginRequest
 
@@ -29,7 +30,18 @@ async def login(body: LoginRequest):
         role_list = [r["role"] for r in (roles.data or [])]
         role = "super_admin" if "super_admin" in role_list else "admin" if "admin" in role_list else "cliente" if "cliente" in role_list else None
 
-        response = Response(content='{"access_token":"' + res.session.access_token + '","refresh_token":"' + res.session.refresh_token + '","user":{"id":"' + res.user.id + '","email":"' + res.user.email + '","role":"' + (role or "") + '"}}', status_code=200, media_type="application/json")
+        response = JSONResponse(
+            status_code=200,
+            content={
+                "access_token": res.session.access_token,
+                "refresh_token": res.session.refresh_token,
+                "user": {
+                    "id": res.user.id,
+                    "email": res.user.email,
+                    "role": role,
+                },
+            },
+        )
 
         # Enviar token como HTTP-only cookie (não acessível via JavaScript)
         response.set_cookie(
@@ -52,7 +64,10 @@ async def login(body: LoginRequest):
 @router.post("/logout")
 async def logout():
     """Endpoint para fazer logout e limpar o cookie de autenticação"""
-    response = Response(content='{"message":"Logout realizado com sucesso"}', status_code=200, media_type="application/json")
+    response = JSONResponse(
+        status_code=200,
+        content={"message": "Logout realizado com sucesso"},
+    )
 
     # Limpar o cookie de autenticação (max_age=0 o deleta)
     response.delete_cookie(
