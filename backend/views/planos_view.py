@@ -1,18 +1,19 @@
-from pydantic import BaseModel
+
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class PlanoCreate(BaseModel):
-    titulo: str
-    descricao: str
+    titulo: str = Field(..., min_length=2, max_length=100)
+    descricao: str = Field(..., min_length=2, max_length=500)
     valor_mensal: float
-    beneficios: Optional[str] = None
+    beneficios: Optional[str] = Field(None, max_length=500)
     destaque: Optional[bool] = False
     ativo: Optional[bool] = True
 
 class PlanoUpdate(BaseModel):
-    titulo: Optional[str] = None
-    descricao: Optional[str] = None
+    titulo: Optional[str] = Field(None, min_length=2, max_length=100)
+    descricao: Optional[str] = Field(None, min_length=2, max_length=500)
     valor_mensal: Optional[float] = None
-    beneficios: Optional[str] = None
+    beneficios: Optional[str] = Field(None, max_length=500)
     destaque: Optional[bool] = None
     ativo: Optional[bool] = None
