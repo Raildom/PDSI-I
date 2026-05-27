@@ -93,6 +93,12 @@
     font-feature-settings: "ss01", "cv11";
   }
   h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.02em; }
+  
+  /* Remover ícone padrão de mostrar senha injetado pelos navegadores (Edge/IE) */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
 }
 
 @layer utilities {
