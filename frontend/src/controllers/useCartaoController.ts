@@ -34,6 +34,7 @@ export function useCartaoController() {
           setSlug(cartao.slug); setPublicado(cartao.publicado);
           setFotoPath(cartao.foto_path ?? null);
           setFalecidoId(cartao.falecido_id ?? null);
+          if (cartao.template_usado) setTpl(cartao.template_usado);
           if (cartao.foto_path) {
             const { data } = supabase.storage.from("cartoes").getPublicUrl(cartao.foto_path);
             setFotoUrl(data.publicUrl);
@@ -60,6 +61,31 @@ export function useCartaoController() {
     if (!user) return null;
     setSaving(true);
     try {
+      let currentFalecidoId = falecidoId;
+      if (!currentFalecidoId && (nasc || fal || titulo)) {
+        try {
+          const novo = await api.falecidos.criar({ 
+            nome: titulo || "Desconhecido", 
+            data_nascimento: nasc || null, 
+            data_falecimento: fal || null 
+          });
+          currentFalecidoId = novo.id;
+          setFalecidoId(currentFalecidoId);
+        } catch (e) {
+          console.error("Erro ao criar falecido automático", e);
+        }
+      } else if (currentFalecidoId) {
+        try {
+          await api.falecidos.atualizar(currentFalecidoId, {
+            nome: titulo || undefined,
+            data_nascimento: nasc || null,
+            data_falecimento: fal || null,
+          });
+        } catch (e) {
+          console.error("Erro ao atualizar falecido automático", e);
+        }
+      }
+
       const finalSlug = slug || `${slugify(titulo)}-${Date.now().toString(36)}`;
       const payload = {
         titulo,
@@ -67,7 +93,8 @@ export function useCartaoController() {
         slug: finalSlug,
         publicado,
         foto_path: fotoPath,
-        falecido_id: falecidoId,
+        falecido_id: currentFalecidoId,
+        template_usado: tpl,
       };
       if (id) {
         await api.cartoes.atualizar(id, payload);

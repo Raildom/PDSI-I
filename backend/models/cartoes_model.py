@@ -92,8 +92,39 @@ class CartoesModel:
     @staticmethod
     def gerar_imagem_cartao(data: dict) -> BytesIO:
         from PIL import Image, ImageDraw, ImageFont
+        
+        tpl = data.get("template_usado") or "moderno"
+        
+        if tpl == "classico":
+            bg_color = (245, 240, 235)
+            text_title = (40, 40, 45)
+            text_dates = (100, 100, 105)
+            text_msg = (60, 60, 65)
+            text_footer = (140, 130, 120)
+            line_color = (210, 195, 180)
+            border_color = (180, 160, 130)
+            show_cross = False
+        elif tpl == "religioso":
+            bg_color = (250, 248, 245)
+            text_title = (50, 45, 40)
+            text_dates = (120, 110, 100)
+            text_msg = (80, 75, 70)
+            text_footer = (150, 140, 130)
+            line_color = (220, 205, 190)
+            border_color = (200, 180, 150)
+            show_cross = True
+        else: # moderno
+            bg_color = (35, 35, 45)
+            text_title = (240, 235, 220)
+            text_dates = (180, 170, 150)
+            text_msg = (200, 195, 180)
+            text_footer = (120, 110, 100)
+            line_color = (120, 100, 80)
+            border_color = (180, 160, 130)
+            show_cross = False
+
         w, h = 1080, 1350
-        img = Image.new("RGB", (w, h), color=(35, 35, 45))
+        img = Image.new("RGB", (w, h), color=bg_color)
         draw = ImageDraw.Draw(img)
         def load_font(size: int) -> ImageFont.ImageFont:
             candidates = [
@@ -129,9 +160,11 @@ class CartoesModel:
                 lines.append(cur)
             return lines
 
-        draw.rectangle([(20, 20), (w-20, h-20)], outline=(180, 160, 130), width=2)
+        draw.rectangle([(20, 20), (w-20, h-20)], outline=border_color, width=2)
         cx = w // 2
-        draw.text((cx-10, 90), "+", fill=(200, 180, 150), font=fs)
+        
+        if show_cross:
+            draw.text((cx-10, 90), "+", fill=border_color, font=fs)
 
         foto_path = data.get("foto_path")
         if foto_path and env.SUPABASE_URL:
@@ -156,12 +189,14 @@ class CartoesModel:
         title_y = 520 if foto_path else 240
         for line in title_lines:
             bb = draw.textbbox((0, 0), line, font=ft)
-            draw.text(((w-(bb[2]-bb[0]))//2, title_y), line, fill=(240, 235, 220), font=ft)
+            draw.text(((w-(bb[2]-bb[0]))//2, title_y), line, fill=text_title, font=ft)
             title_y += 74
 
         def fmt_br(date_str: str) -> str:
             if not date_str:
                 return ""
+            # Remover parte de tempo se presente (ex: 2024-05-27T00:00:00+00:00)
+            date_str = str(date_str).split("T")[0].strip()
             parts = date_str.split("-")
             if len(parts) == 3:
                 return f"{parts[2]}/{parts[1]}/{parts[0]}"
@@ -178,9 +213,9 @@ class CartoesModel:
                 dt = f"{nasc}  -  {fal}" if nasc and fal else (nasc or fal)
             if dt:
                 bb2 = draw.textbbox((0, 0), dt, font=fs)
-                draw.text(((w-(bb2[2]-bb2[0]))//2, h - 360), dt, fill=(180, 170, 150), font=fs)
+                draw.text(((w-(bb2[2]-bb2[0]))//2, h - 360), dt, fill=text_dates, font=fs)
 
-        draw.line([(140, h - 320), (w-140, h - 320)], fill=(120, 100, 80), width=1)
+        draw.line([(140, h - 320), (w-140, h - 320)], fill=line_color, width=1)
 
         msg = data.get("mensagem", "")
         if msg:
@@ -188,13 +223,13 @@ class CartoesModel:
             y = h - 300
             for line in lines:
                 bb3 = draw.textbbox((0, 0), line, font=fm)
-                draw.text(((w-(bb3[2]-bb3[0]))//2, y), line, fill=(200, 195, 180), font=fm)
+                draw.text(((w-(bb3[2]-bb3[0]))//2, y), line, fill=text_msg, font=fm)
                 y += 38
 
-        draw.line([(140, h-220), (w-140, h-220)], fill=(120, 100, 80), width=1)
+        draw.line([(140, h-220), (w-140, h-220)], fill=line_color, width=1)
         footer = "Saint Luzia · Homenagens"
         bb4 = draw.textbbox((0, 0), footer, font=ff)
-        draw.text(((w-(bb4[2]-bb4[0]))//2, h-120), footer, fill=(120, 110, 100), font=ff)
+        draw.text(((w-(bb4[2]-bb4[0]))//2, h-120), footer, fill=text_footer, font=ff)
 
         buf = BytesIO()
         img.save(buf, format="PNG", quality=95)

@@ -14,6 +14,7 @@ import type { Funeraria } from "@/models/types";
 
 export default function Perfil() {
   const { user, signOut } = useAuth();
+
   const nav = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

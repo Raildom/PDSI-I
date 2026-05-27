@@ -12,6 +12,15 @@ class FalecidosModel:
         return sb.table("falecidos").select("*").eq("id", falecido_id).eq("user_id", user_id).maybe_single().execute()
 
     @staticmethod
+    def get_by_id(falecido_id: str):
+        """Busca falecido apenas pelo ID (sem filtro de user_id).
+        Usado pelo endpoint de download do cartão."""
+        sb = get_supabase()
+        result = sb.table("falecidos").select("nome, data_nascimento, data_falecimento").eq("id", falecido_id).maybe_single().execute()
+        data = getattr(result, "data", None)
+        return data
+
+    @staticmethod
     def criar(payload: dict):
         sb = get_supabase()
         return sb.table("falecidos").insert(payload).execute()
