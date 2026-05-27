@@ -42,7 +42,10 @@ export default function Perfil() {
     funerariaModel.listAtivas().then(setFunerarias).catch(() => setFunerarias([]));
   }, []);
 
-  const isTelefoneValid = (tel: string) => /^(\(\d{2}\)\s?)?\d{4,5}-\d{4}$/.test(tel);
+  const isTelefoneValid = (tel: string) => {
+    const digits = tel.replace(/\D/g, "");
+    return digits.length >= 10 && digits.length <= 11;
+  };
 
   const salvar = async () => {
     if (!user) return;

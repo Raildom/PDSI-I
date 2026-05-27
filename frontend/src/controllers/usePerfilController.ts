@@ -51,7 +51,10 @@ export function usePerfilController() {
   }, [user]);
 
   const isCnpjValid = (cnpj: string) => /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(cnpj);
-  const isTelefoneValid = (tel: string) => /^(\(\d{2}\)\s?)?\d{4,5}-\d{4}$/.test(tel);
+  const isTelefoneValid = (tel: string) => {
+    const digits = tel.replace(/\D/g, "");
+    return digits.length >= 10 && digits.length <= 11;
+  };
 
   const salvar = async () => {
     if (!user) return;
