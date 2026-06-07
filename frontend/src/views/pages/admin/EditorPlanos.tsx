@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Edit3, Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { Input } from "@/views/components/ui/input";
@@ -41,16 +41,23 @@ export default function EditorPlanos() {
     return partes.join("\n\n");
   };
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     try {
       const data = await api.planos.listarTodos();
       setPlanos(data ?? []);
-      if (!selId && data?.[0]) { setSelId(data[0].id); setEdit(data[0]); }
+      setSelId((current) => {
+        if (current) return current;
+        if (data?.[0]) {
+          setEdit(data[0]);
+          return data[0].id;
+        }
+        return current;
+      });
     } catch { /* ignore */ }
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const select = (p: Plano) => {
     setSelId(p.id);

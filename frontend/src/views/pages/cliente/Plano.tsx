@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2, ShieldCheck, Truck } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { useAuth } from "@/controllers/useAuthController";
@@ -28,7 +28,7 @@ export default function Plano() {
   const [showTroca, setShowTroca] = useState(false);
   const [cancelando, setCancelando] = useState(false);
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setPlanos([]);
@@ -54,9 +54,9 @@ export default function Plano() {
       setContrato(null);
     }
     setLoading(false);
-  };
+  }, [user]);
 
-  useEffect(() => { fetchAll(); }, [user]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const contratar = async (plano: Plano) => {
     if (!user) return;

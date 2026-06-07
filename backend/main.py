@@ -21,7 +21,7 @@ from .controllers import (
 
 app = FastAPI(
     title="Saint Luzia API",
-    description="API REST para a plataforma de gestão funerária Saint Luzia (Arquitetura MVC)",
+    description="API REST para a plataforma de gestão funerária Saint Luzia",
     version="1.1.0",
 )
 
