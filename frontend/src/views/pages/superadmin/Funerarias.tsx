@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import InputMask from "react-input-mask";
 import { Building2, Loader2, Save, Trash2 } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import {
@@ -123,29 +122,9 @@ export default function Funerarias() {
     await carregarCredenciais(f.id);
   };
 
-  const isCnpjValid = (cnpj: string) => /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(cnpj);
-  const isTelefoneValid = (tel: string) => /^(\(\d{2}\)\s?)?\d{4,5}-\d{4}$/.test(tel);
-  const isEmailValid = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   const salvar = async () => {
     if (!form.razao_social.trim()) {
       toast.error("Informe a razao social");
-      return;
-    }
-    if (form.razao_social.trim().length < 2) {
-      toast.error("Razão social deve ter pelo menos 2 caracteres");
-      return;
-    }
-    if (form.cnpj && !isCnpjValid(form.cnpj)) {
-      toast.error("CNPJ inválido. Use o formato 00.000.000/0000-00");
-      return;
-    }
-    if (form.telefone && !isTelefoneValid(form.telefone)) {
-      toast.error("Telefone inválido. Use o formato (99) 99999-9999");
-      return;
-    }
-    if (form.email && !isEmailValid(form.email)) {
-      toast.error("E-mail inválido");
       return;
     }
     if (!form.id && (!form.email.trim() || !form.admin_nome.trim() || !form.admin_password.trim())) {
@@ -290,23 +269,23 @@ export default function Funerarias() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Razão social</Label>
-                <Input maxLength={150} value={form.razao_social} onChange={(e) => setForm({ ...form, razao_social: e.target.value })} />
+                <Input value={form.razao_social} onChange={(e) => setForm({ ...form, razao_social: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">CNPJ</Label>
-                <InputMask mask="99.999.999/9999-99" value={form.cnpj} onChange={(e) => setForm({ ...form, cnpj: e.target.value })}>{(inputProps: any) => (<Input {...inputProps} placeholder="00.000.000/0000-00" />)}</InputMask>
+                <Input value={form.cnpj} onChange={(e) => setForm({ ...form, cnpj: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Telefone</Label>
-                <InputMask mask="(99) 99999-9999" value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })}>{(inputProps: any) => (<Input {...inputProps} placeholder="(00) 00000-0000" />)}</InputMask>
+                <Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} />
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label>
-                <Input type="email" maxLength={100} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nome@empresa.com.br" />
+                <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Endereço</Label>
-                <Textarea rows={3} maxLength={300} value={form.endereco} onChange={(e) => setForm({ ...form, endereco: e.target.value })} />
+                <Textarea rows={3} value={form.endereco} onChange={(e) => setForm({ ...form, endereco: e.target.value })} />
               </div>
             </div>
 
@@ -314,11 +293,11 @@ export default function Funerarias() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label className="text-xs uppercase tracking-wider text-muted-foreground">Administrador da funerária</Label>
-                  <Input maxLength={100} value={form.admin_nome} onChange={(e) => setForm({ ...form, admin_nome: e.target.value })} placeholder="Nome completo do administrador" />
+                  <Input value={form.admin_nome} onChange={(e) => setForm({ ...form, admin_nome: e.target.value })} />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs uppercase tracking-wider text-muted-foreground">Senha do administrador</Label>
-                  <Input type="password" minLength={8} maxLength={128} value={form.admin_password} onChange={(e) => setForm({ ...form, admin_password: e.target.value })} placeholder="Mínimo 8 caracteres" />
+                  <Input type="password" value={form.admin_password} onChange={(e) => setForm({ ...form, admin_password: e.target.value })} />
                 </div>
               </div>
             )}

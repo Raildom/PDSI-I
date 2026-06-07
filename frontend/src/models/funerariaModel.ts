@@ -31,12 +31,4 @@ export const funerariaModel = {
     if (error) throw error;
     return (data as Funeraria) ?? null;
   },
-
-  async update(id: string, payload: Partial<Funeraria>): Promise<void> {
-    const { error } = await supabase
-      .from("funerarias")
-      .update(payload)
-      .eq("id", id);
-    if (error) throw error;
-  },
 };
