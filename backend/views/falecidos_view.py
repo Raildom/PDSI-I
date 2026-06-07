@@ -1,28 +1,18 @@
-
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
-
 class FalecidoCreate(BaseModel):
-    nome: str = Field(..., min_length=2, max_length=100)
+    nome: str
     data_nascimento: Optional[str] = None
     data_falecimento: Optional[str] = None
-    cpf: Optional[str] = Field(
-        None,
-        pattern=r"^\d{3}\.\d{3}\.\d{3}-\d{2}$",
-        description="CPF no formato 000.000.000-00"
-    )
+    cpf: Optional[str] = None
     parentesco: Optional[str] = None
     observacoes: Optional[str] = None
 
 class FalecidoUpdate(BaseModel):
-    nome: Optional[str] = Field(None, min_length=2, max_length=100)
+    nome: Optional[str] = None
     data_nascimento: Optional[str] = None
     data_falecimento: Optional[str] = None
-    cpf: Optional[str] = Field(
-        None,
-        pattern=r"^\d{3}\.\d{3}\.\d{3}-\d{2}$",
-        description="CPF no formato 000.000.000-00"
-    )
+    cpf: Optional[str] = None
     parentesco: Optional[str] = None
     observacoes: Optional[str] = None
