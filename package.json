@@ -1,5 +1,10 @@
 {
+  "name": "saint-luzia-monorepo",
+  "version": "1.0.0",
   "scripts": {
     "build": "cd frontend && npm install && npm run build && cd .. && mkdir -p public && cp -r frontend/dist/* public/"
+  },
+  "dependencies": {
+    "typescript": "^5.0.0"
   }
 }
