@@ -38,7 +38,20 @@ async function request<T = any>(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `Erro ${res.status}`);
+    let message: string;
+    if (Array.isArray(err.detail)) {
+      // Erro de validação do Pydantic — detail é um array de objetos
+      message = err.detail
+        .map((e: any) => {
+          const field = e.loc?.slice(1).join(" → ") ?? "";
+          const msg = e.msg ?? e.message ?? JSON.stringify(e);
+          return field ? `${field}: ${msg}` : msg;
+        })
+        .join("\n");
+    } else {
+      message = err.detail || `Erro ${res.status}`;
+    }
+    throw new Error(message);
   }
 
   // Para respostas blob (download)

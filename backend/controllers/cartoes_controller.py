@@ -93,8 +93,8 @@ async def download_cartao(slug: str):
         media_type="image/png",
         headers={
             "Content-Disposition": (
-                f"attachment; filename=\"Cartao de luto\"; "
-                "filename*=UTF-8''Cart%C3%A3o%20de%20luto"
+                "attachment; filename=\"Cartao de luto.png\"; "
+                "filename*=UTF-8''Cart%C3%A3o%20de%20luto.png"
             ),
             "Cache-Control": "no-store",
         },

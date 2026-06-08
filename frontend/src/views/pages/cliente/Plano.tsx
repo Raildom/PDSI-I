@@ -68,7 +68,7 @@ export default function Plano() {
         carencia_ate: carencia.toISOString().slice(0, 10),
       });
       toast.success("Plano contratado!");
-      fetchAll();
+      await fetchAll();
     } catch (e: any) { toast.error(e.message); }
     setContratando(null);
   };

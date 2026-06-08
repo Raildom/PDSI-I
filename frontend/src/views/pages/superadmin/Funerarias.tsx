@@ -382,7 +382,7 @@ export default function Funerarias() {
                   onClick={() => {
                     setShowForm(false);
                     novo();
-                    navigate("/super-admin");
+                    navigate("/super-admin/funerarias");
                   }}
                 >
                   Descartar

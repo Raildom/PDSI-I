@@ -16,8 +16,8 @@ export default function Configuracoes() {
     <div className="space-y-7">
       <header>
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Configurações</p>
-        <h1 className="font-serif text-4xl mt-2">Nova Funerária</h1>
-        <p className="text-muted-foreground mt-1">Cadastre novas funerárias para operar na plataforma.</p>
+        <h1 className="font-serif text-4xl mt-2">Configurações</h1>
+        <p className="text-muted-foreground mt-1">Gerencie preferências e acesso ao sistema.</p>
       </header>
 
       <section className="grid sm:grid-cols-3 gap-3 max-w-3xl">

@@ -112,7 +112,7 @@ export default function EditorPlanos() {
       payload.valor_mensal = valorMensal;
       if (selId) { await api.planos.atualizar(selId, payload); }
       else { await api.planos.criar(payload); }
-      toast.success("Plano salvo"); fetchAll();
+      toast.success("Plano salvo"); await fetchAll();
     } catch (e: any) { toast.error(e.message); }
     setSaving(false);
   };
@@ -173,7 +173,7 @@ export default function EditorPlanos() {
             <label className="flex items-center gap-2"><Switch checked={edit.ativo ?? true} onCheckedChange={(v) => setEdit({ ...edit, ativo: v })} /> <span className="text-sm">Ativo</span></label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => { const p = planos.find((x) => x.id === selId); if (p) setEdit(p); }}>Descartar</Button>
+            <Button variant="outline" className="rounded-xl" onClick={() => { const p = planos.find((x) => x.id === selId); if (p) { setEdit(p); setValorMensalText(formatCurrency(p.valor_mensal)); setBeneficiosText(toBeneficiosText(p.beneficios)); } }}>Descartar</Button>
             <Button onClick={salvar} disabled={saving} className="rounded-xl">{saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar Plano</Button>
           </div>
         </section>

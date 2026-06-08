@@ -123,7 +123,7 @@ export function useCartaoController() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "Cartão de luto";
+      a.download = "Cartão de luto.png";
       document.body.appendChild(a);
       a.click();
       a.remove();
