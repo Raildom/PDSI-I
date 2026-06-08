@@ -1,363 +1,275 @@
-# 🕊️ Plataforma Saint Luzia
+# 🕊️ Saint Luzia — Plataforma de Gestão Funerária
 
-[![Build Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)]()
-[![React](https://img.shields.io/badge/React-18-blue)](https://react.dev)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)](https://fastapi.tiangolo.com)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org)
-[![License](https://img.shields.io/badge/License-Academic-purple)](https://github.com)
+[![Status](https://img.shields.io/badge/status-finalizado-success)]()
+[![React](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6)](https://www.typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-2.0-3ECF8E)](https://supabase.com)
+[![Vercel](https://img.shields.io/badge/deploy-Vercel-000000)](https://vercel.com)
+[![License](https://img.shields.io/badge/License-Academic-purple)]()
 
-Bem-vindo ao repositório do projeto **Saint Luzia**, um sistema moderno desenvolvido para a disciplina de **Projeto e Desenvolvimento de Sistemas de Informação (PDSI)**.
+Sistema completo de gestão funerária desenvolvido para a disciplina **Projeto e Desenvolvimento de Sistemas de Informação (PDSI)** da **UFPI**.
 
-## 📋 Descrição
-
-A plataforma atua como uma ponte digital empática e eficiente entre empresas funerárias parceiras e famílias em luto. O sistema reduz burocracia, oferece acompanhamento transparente de todos os trâmites do processo funerário e facilita a geração de cartões de luto digitais personalizados.
-
-### ✨ Principais Funcionalidades
-
-- **Autenticação e Gerenciamento de Usuários** — Sistema seguro com Supabase Auth e validação JWT
-- **Plataforma de Contratos** — Clientes podem visualizar e gerenciar planos funerários
-- **Cartões de Luto Digitais** — Geração em tempo real com Pillow (Python)
-- **Painel Administrativo** — Admins gerenciam planos, clientes e documentos
-- **Super Administrador** — Gestão completa da plataforma e empresas funerárias
-- **Validação de Documentos** — Fluxo de upload e aprovação de documentos
-- **Armazenamento Seguro** — PostgreSQL com Row Level Security (RLS)
+A plataforma conecta famílias enlutadas a empresas funerárias parceiras, reduzindo burocracia, oferecendo acompanhamento transparente dos trâmites do processo funerário e disponibilizando ferramentas digitais como cartões de luto personalizados.
 
 ---
 
-## 🏛️ Arquitetura e Tecnologias
+## 📋 Funcionalidades
 
-O projeto foi desenvolvido sob a arquitetura **MVC (Model-View-Controller)**, garantindo modularidade e manutenibilidade tanto no Frontend quanto no Backend. Ambos estão organizados em suas próprias pastas: `frontend/` e `backend/`.
+| Módulo | Funcionalidades |
+|--------|----------------|
+| **Autenticação** | Cadastro e login com três níveis de acesso (cliente, admin, super_admin) |
+| **Cliente** | Dashboard com checklist do processo, visualização e contratação de planos, upload de documentos, cadastro de falecido, criação de cartão de luto digital |
+| **Admin (Funerária)** | Dashboard com estatísticas, gestão de planos, validação de documentos, lista de clientes, edição de perfil da funerária |
+| **Super Admin** | Gestão completa de funerárias (criar, editar, excluir), criação de contas admin para cada funerária |
+| **Cartão de Luto** | Geração de cartões em PNG com 3 templates (clássico, religioso, moderno); upload de foto; página pública compartilhável via slug |
+| **Documentos** | Upload, validação (aprovar/rejeitar) com observações; armazenamento seguro com links temporários |
+| **Multi-tenant** | Isolamento completo de dados entre funerárias via Row Level Security (RLS) do Supabase |
 
-### 📁 Estrutura do Projeto
+---
+
+## 🏛️ Arquitetura
+
+O projeto segue o padrão **MVC (Model-View-Controller)** em ambos os lados, garantindo modularidade e manutenibilidade.
 
 ```
 PDSI-I/
-├── frontend/                          # Aplicação React (MVC)
+├── frontend/                           # Aplicação React (View + Controller)
 │   ├── src/
-│   │   ├── models/                    # Camada de dados
-│   │   │   ├── types.ts              # Interfaces TypeScript
-│   │   │   ├── api.ts                # Cliente HTTP centralizado
-│   │   │   ├── supabase/             # Cliente Supabase
-│   │   │   └── *Model.ts             # Models de acesso a dados
-│   │   ├── views/                     # Componentes React (MVC)
-│   │   │   ├── pages/                # Páginas (auth, admin, cliente, superadmin)
-│   │   │   ├── components/           # Componentes reutilizáveis
-│   │   │   │   └── ui/               # Componentes shadcn/ui
-│   │   │   └── lib/                  # Utilitários (formatação, validação)
-│   │   ├── controllers/              # Hooks de lógica de negócio (useXxxController)
-│   │   ├── hooks/                    # Hooks genéricos (auth, mobile, toast)
-│   │   └── App.tsx                   # Aplicação principal
+│   │   ├── models/                     # Camada de dados (API client, tipos, models)
+│   │   │   ├── types.ts               # Interfaces TypeScript
+│   │   │   ├── api.ts                 # Cliente HTTP centralizado (FastAPI)
+│   │   │   ├── supabase/              # Cliente Supabase (auth, storage)
+│   │   │   └── *Model.ts             # Models de acesso direto ao Supabase
+│   │   ├── views/                      # Componentes React
+│   │   │   ├── pages/                 # Páginas (auth, admin, cliente, superadmin)
+│   │   │   ├── components/            # Componentes reutilizáveis
+│   │   │   └── lib/                   # Utilitários
+│   │   ├── controllers/               # Hooks de lógica de negócio
+│   │   └── App.tsx                    # Roteamento principal
 │   ├── package.json
-│   ├── vite.config.ts               # Configuração Vite
-│   ├── tsconfig.json                # Configuração TypeScript
-│   ├── eslint.config.js             # Regras de linting
-│   └── .env.local                   # Variáveis de ambiente (local)
+│   ├── vite.config.ts
+│   └── vercel.json
 │
-├── backend/                           # API FastAPI (MVC)
-│   ├── main.py                       # Entrada da aplicação
-│   ├── models/                       # Regras de negócio + queries
-│   ├── views/                        # Schemas Pydantic (serialização)
-│   ├── controllers/                  # Rotas de API
-│   ├── config/                       # Configuração e dependências
-│   ├── requirements.txt              # Dependências Python
-│   └── .env.local                    # Variáveis de ambiente (local)
+├── backend/                            # API FastAPI (Model + Controller)
+│   ├── main.py                        # Entrada da aplicação
+│   ├── models/                        # Regras de negócio + queries
+│   ├── views/                         # Schemas Pydantic (validação/serialização)
+│   ├── controllers/                   # Rotas de API
+│   ├── config/                        # Configuração (Supabase, JWT, CORS)
+│   └── requirements.txt
 │
-├── supabase/                          # Configuração do Supabase
-│   └── migrations/                   # Migrations SQL em ordem
+├── api/
+│   └── index.py                       # Entrypoint serverless para Vercel
 │
-└── README.md                          # Este arquivo
+├── supabase/
+│   └── migrations/                    # Migrations SQL (9 arquivos, em ordem)
+│
+└── README.md
 ```
 
-### ⚛️ Frontend (React) — `frontend/`
+### Fluxo de Dados
 
-**Tecnologias:**
-- **Framework:** React 18 com TypeScript
-- **Build Tool:** Vite
-- **Estilização:** Tailwind CSS + componentes [shadcn/ui](https://ui.shadcn.com)
-- **Validação:** Zod + react-hook-form
-- **Requisições:** Fetch API com cliente HTTP centralizado
-- **Estado:** React Hooks + Context API
+```
+Navegador (React)
+    ↕  HTTP + JWT Bearer
+FastAPI (Vercel Serverless)
+    ↕  Service Role Key
+Supabase (PostgreSQL + Auth + Storage)
+```
 
-**Estrutura MVC (`frontend/src/`):**
-- **`models/`** — Camada de dados (tipos, cliente HTTP, cliente Supabase, models)
-- **`views/`** — Componentes visuais (páginas + componentes reutilizáveis)
-- **`controllers/`** — Hooks customizados que gerenciam estados e regras de negócio
-
-### 🐍 Backend (FastAPI) — `backend/`
-
-**Tecnologias:**
-- **Framework:** FastAPI
-- **Autenticação:** JWT via Supabase Auth
-- **Geração de Imagens:** Pillow para cartões de luto em PNG
-- **ORM/Query Builder:** Supabase Client Python
-- **Validação:** Pydantic
-
-**Estrutura MVC (`backend/`):**
-- **`models/`** — Regras de negócio + queries ao banco de dados
-- **`views/`** — Schemas Pydantic para validação e serialização
-- **`controllers/`** — Rotas de API (FastAPI endpoints)
-- **`config/`** — Configuração central (Supabase, JWT, CORS, etc.)
-
-### 🐘 Banco de Dados (Supabase)
-
-- **Motor:** PostgreSQL
-- **Segurança:** Row Level Security (RLS) garante isolamento de dados
-- **Storage:** Buckets para PDFs (privado) e fotos de cartões (público)
-- **Realtime:** Subscrições WebSocket (opcional para futuras features)
-
-**Tabelas principais:**
-- `auth.users` — Usuários (gerenciado por Supabase Auth)
-- `user_roles` — Papéis de acesso (cliente, admin, super_admin)
-- `funerarias` — Empresas funerárias
-- `planos_funerarios` — Planos oferecidos
-- `contratacoes` — Contratos de clientes com planos
-- `falecidos` — Dados de falecidos
-- `documentos` — Documentos enviados e validações
-- `cartoes_luto` — Cartões digitais
+O frontend se comunica com o backend FastAPI via HTTP, enviando o token JWT do Supabase Auth automaticamente em cada requisição. O backend usa a **service role key** do Supabase para acessar o banco com privilégios elevados (bypass RLS), enquanto as políticas RLS do PostgreSQL garantem o isolamento entre funerárias.
 
 ---
 
-## 🚀 Requisitos do Sistema
+## ⚛️ Frontend (React + Vite)
 
-### Backend
-- **Python 3.9+**
-- **pip** (gerenciador de pacotes Python)
-- **Conta Supabase** (com projeto criado)
+**Stack:**
+- **Framework:** React 18 com TypeScript 5.8
+- **Build:** Vite 5
+- **Estilização:** Tailwind CSS 3.4 + shadcn/ui (componentes Radix UI)
+- **Formulários:** React Hook Form + Zod
+- **Requisições:** Fetch API com cliente HTTP centralizado (`api.ts`)
+- **Estado:** React Hooks + Context API (Auth)
+- **Cache/Query:** TanStack React Query 5
+- **Gráficos:** Recharts
+- **Roteamento:** React Router DOM 6
+- **Testes:** Vitest + Testing Library
+- **Máscaras:** react-input-mask
+- **Datas:** date-fns
 
-### Frontend
-- **Node.js 18+**
-- **npm** ou **yarn**
-- **Navegador moderno** (Chrome, Firefox, Safari, Edge)
+### Estrutura MVC (Frontend)
+
+- **`models/`** — Tipos TypeScript, cliente HTTP, cliente Supabase, models para acesso direto ao banco
+- **`views/`** — Páginas e componentes de UI (shadcn/ui + componentes customizados)
+- **`controllers/`** — Hooks customizados que encapsulam a lógica de negócio
+
+### Rotas
+
+| Rota | Acesso | Descrição |
+|------|--------|-----------|
+| `/` | Público | Landing page |
+| `/login` | Público | Login do cliente |
+| `/cadastro` | Público | Cadastro do cliente |
+| `/admin/login` | Público | Login administrativo |
+| `/cartao/:slug` | Público | Página pública do cartão de luto |
+| `/cliente/*` | Cliente | Dashboard, planos, documentos, cartão, falecido, perfil |
+| `/admin/*` | Admin/Super | Dashboard, clientes, planos, documentos, perfil, config |
+| `/super-admin/*` | Super Admin | Dashboard, funerárias |
 
 ---
 
-## 🛠️ Como Rodar o Projeto
+## 🐍 Backend (FastAPI)
 
-### Pré-requisitos: Configuração do Supabase
+**Stack:**
+- **Framework:** FastAPI 0.115
+- **Servidor:** Uvicorn + Vercel Serverless Python
+- **Autenticação:** JWT via Supabase Auth (com depósito `require_admin`/`require_super_admin`)
+- **Validação:** Pydantic v2
+- **Banco:** Supabase Client Python (service_role)
+- **Imagens:** Pillow (geração de cartões de luto em PNG)
+- **Upload:** python-multipart
+- **Requisições HTTP:** httpx
 
-1. **Criar projeto Supabase** (se não houver):
-   - Acesse [supabase.com](https://supabase.com)
-   - Crie um novo projeto
+### Endpoints da API
 
-2. **Obter credenciais** (necessárias para `.env.local`):
-   - Vá em **Project Settings → API**
-   - Copie: `Project URL` e `Anon Key` (para o frontend)
-   - Copie: `Service Role Key` (para o backend, **não compartilhe!**)
+| Prefixo | Tags | Descrição |
+|---------|------|-----------|
+| `GET /api/health` | — | Health check |
+| `POST /api/auth/*` | Autenticação | Register, login, logout |
+| `GET/PUT /api/perfil` | Perfil | Obter/atualizar perfil do usuário |
+| `GET /api/funerarias/ativas` | Funerárias | Lista funerárias ativas (público) |
+| `GET/POST/PUT /api/planos/*` | Planos | Listar, criar, atualizar planos |
+| `GET/POST /api/contratacoes/*` | Contratações | Contratar, cancelar, trocar plano |
+| `GET/POST/PUT /api/falecidos/*` | Falecidos | CRUD de falecidos |
+| `GET/POST/PUT /api/documentos/*` | Documentos | Upload, validação, download |
+| `GET/POST/PUT /api/cartoes/*` | Cartão de Luto | Criar, editar, download PNG, upload foto |
+| `GET /api/cartoes/publico/:slug` | Cartão de Luto | Página pública do cartão |
+| `GET /api/admin/*` | Administração | Dashboard stats, clientes, docs pendentes |
+| `GET /api/processos/*` | Processos | Checklist de etapas |
+| `GET/POST/PUT/DELETE /api/super-admin/funerarias/*` | Super Admin | Gestão de funerárias |
 
-3. **Aplicar schema do banco de dados**:
-   - Abra o **SQL Editor** do Supabase
-   - Copie e cole o conteúdo de `supabase/migrations/` **em ordem numérica**
-   - Execute cada migration
+---
 
-### 1️⃣ Setup Inicial (Ambos os lados)
+## 🐘 Banco de Dados (Supabase PostgreSQL)
 
-**Opção A: Usando Make (Linux/Mac)**
-```bash
-make setup
+**Esquema completo** (9 migrations em ordem numérica):
+
+### Tabelas
+
+| Tabela | Descrição |
+|--------|-----------|
+| `profiles` | Perfis de usuário (nome, email, telefone, CPF, funeraria_id) |
+| `user_roles` | Papéis de acesso (cliente, admin, super_admin) |
+| `funerarias` | Empresas funerárias |
+| `planos` | Planos funerários (título, descrição, valor, benefícios) |
+| `contratacoes` | Contratos (usuário × plano, status, carência) |
+| `falecidos` | Dados dos falecidos (nome, datas, CPF, parentesco) |
+| `tipos_documento` | Tipos de documento necessários |
+| `documentos` | Documentos enviados (arquivo, status, validação) |
+| `processo_etapas` | Checklist do processo funerário |
+| `cartoes_luto` | Cartões de luto digitais (slug, template, foto) |
+| `funeraria_admin_credentials` | Credenciais de admin por funerária |
+
+### Segurança
+
+- **Row Level Security (RLS)** ativo em todas as tabelas
+- Isolamento multi-tenant: admins só acessam dados de sua própria funerária
+- Clientes acessam apenas seus próprios dados
+- Funções `SECURITY DEFINER` (`has_role`, `get_user_funeraria`) com execução restrita
+- Buckets de storage: `documentos` (privado, links temporários) e `cartoes` (público)
+
+---
+
+## 🚀 Deploy
+
+O projeto está configurado para deploy na **Vercel**:
+
+- **Frontend:** Build estático com Vite, servido como SPA com rewrites
+- **API:** Serverless Functions (Python) via `api/index.py`
+- **Banco:** Supabase (PostgreSQL gerenciado)
+
+### Variáveis de Ambiente
+
+**Frontend** — criar `frontend/.env.local`:
+```env
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica-anon
 ```
 
-**Opção B: Manual**
-
-#### Frontend
-```bash
-cd frontend
-cp .env.example .env.local
-# Edite .env.local com suas credenciais Supabase
-npm install
+**Backend** — criar `backend/.env.local`:
+```env
+SUPABASE_URL=https://seu-projeto.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 ```
 
-#### Backend
+---
+
+## 🛠️ Desenvolvimento Local
+
+### Pré-requisitos
+
+- Node.js 18+
+- Python 3.9+
+- Conta Supabase com projeto criado
+
+### 1. Configurar Supabase
+
+1. Crie um projeto em [supabase.com](https://supabase.com)
+2. Obtenha as credenciais em **Project Settings → API**
+3. Execute as migrations do diretório `supabase/migrations/` em ordem no SQL Editor
+
+### 2. Backend
+
 ```bash
 cd backend
-cp .env.example .env.local
-# Edite .env.local com suas credenciais Supabase
+# Crie o arquivo backend/.env.local com:
+# SUPABASE_URL=https://seu-projeto.supabase.co
+# SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 pip install -r requirements.txt
+uvicorn main:app --port 8000 --reload
 ```
 
-### 2️⃣ Rodando o Backend (API)
+API disponível em `http://127.0.0.1:8000`  
+Documentação Swagger em `http://127.0.0.1:8000/docs`
 
-Abra um terminal e execute:
-
-```bash
-cd backend
-python3 -m uvicorn main:app --port 8000 --reload
-```
-
-**Resultado esperado:**
-- ✅ API rodando em `http://127.0.0.1:8000`
-- ✅ Documentação Swagger em `http://127.0.0.1:8000/docs`
-- ✅ Mantenha este terminal aberto durante o desenvolvimento
-
-### 3️⃣ Rodando o Frontend (Interface Web)
-
-Abra um **segundo terminal** e execute:
+### 3. Frontend
 
 ```bash
 cd frontend
+# Crie o arquivo frontend/.env.local com:
+# VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+# VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica-anon
+npm install
 npm run dev
 ```
 
-**Resultado esperado:**
-- ✅ Frontend rodando em `http://127.0.0.1:5173` (ou próxima porta disponível)
-- ✅ Acesse no navegador: `http://127.0.0.1:5173`
-
-### 📊 Verificação de Setup
-
-Se tudo estiver configurado corretamente, você verá:
-
-- ✅ Frontend carregando sem erros (verificar console do navegador)
-- ✅ Tela de login funcionando
-- ✅ API respondendo em `/docs`
-- ✅ Supabase conectado (sem erros de autenticação)
-
-Se houver erro **”Configuração do Supabase ausente”**, verifique se:
-- [ ] `.env.local` está criado no `frontend/`
-- [ ] `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` estão preenchidos
-- [ ] Você executou `npm run dev` **depois** de editar `.env.local`
+Frontend disponível em `http://127.0.0.1:5173`
 
 ---
 
-## 👥 Acessos e Perfis de Teste
+## 👥 Perfis de Acesso
 
-A plataforma conta com **três níveis de acesso (Roles)**:
+| Papel | Acesso | URL de Login |
+|-------|--------|--------------|
+| **Cliente** | Dashboard, planos, documentos, cartão de luto, falecido | `/login` |
+| **Admin** | Dashboard da funerária, gestão de planos, validação de documentos, clientes | `/admin/login` |
+| **Super Admin** | Gestão de todas as funerárias, criação de contas admin | `/admin/login` |
 
-| Role | Acesso | URL |
-|------|--------|-----|
-| **Cliente** | Visualizar planos, gerenciar cartão de luto, upload de documentos | `/` |
-| **Admin** | Gerenciar clientes, planos, validar documentos | `/admin/login` |
-| **Super Admin** | Gerenciar funerárias, admins e sistema completo | `/admin/login` → redireciona `/super-admin` |
+### Testando
 
-### 🔓 Criar Conta de Teste
-
-1. **Acesse:** `http://127.0.0.1:5173`
-2. **Clique em:** "Não tem conta? Cadastre-se"
-3. **Preencha:** Email e senha
-4. **Conta será automaticamente vinculada como `Cliente`**
-
-### 👤 Promover para Admin
-
-Após criar sua conta:
-
-1. **Abra SQL Editor do Supabase** (Project → SQL Editor)
-2. **Execute o comando** (substitua o email):
+Para criar um admin, execute no SQL Editor do Supabase:
 ```sql
 UPDATE public.user_roles
 SET role = 'admin'
 WHERE user_id = (SELECT id FROM auth.users WHERE email = 'seu-email@example.com' LIMIT 1);
 ```
-3. **Acesse:** `http://127.0.0.1:5173/admin/login`
-4. **Faça login** com a mesma conta
-5. **Será redirecionado para:** `/admin/dashboard`
 
-### 👑 Promover para Super Admin
-
-1. **Execute no SQL Editor:**
+Para criar um super_admin:
 ```sql
 UPDATE public.user_roles
 SET role = 'super_admin'
 WHERE user_id = (SELECT id FROM auth.users WHERE email = 'seu-email@example.com' LIMIT 1);
-```
-2. **Acesse:** `http://127.0.0.1:5173/admin/login`
-3. **Sistema redireciona automaticamente para:** `/super-admin`
-
-### 🧪 Testando Fluxos
-
-**Cliente:**
-- [ ] Login no site
-- [ ] Visualizar planos disponíveis
-- [ ] Editar cartão de luto
-- [ ] Upload de documentos
-- [ ] Visualizar contratações
-
-**Admin:**
-- [ ] Login em `/admin/login`
-- [ ] Visualizar dashboard (estatísticas)
-- [ ] Editar planos da funerária
-- [ ] Validar documentos de clientes
-- [ ] Visualizar lista de clientes
-
-**Super Admin:**
-- [ ] Login em `/admin/login` (com role super_admin)
-- [ ] Acessar `/super-admin`
-- [ ] Criar/editar funerárias
-- [ ] Ver estatísticas do sistema
-
----
-
-## 🐛 Troubleshooting
-
-### "Configuração do Supabase ausente"
-**Solução:**
-```bash
-cd frontend
-# Verifique se .env.local existe
-ls -la .env.local
-
-# Se não existir, copie do exemplo:
-cp .env.example .env.local
-
-# Edite e preencha com suas credenciais:
-# VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-# VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
-
-# Reinicie o servidor:
-npm run dev
-```
-
-### "Sessão expirada" ou "Token inválido"
-**Solução:**
-1. Abra DevTools (F12)
-2. Vá em **Application → Local Storage**
-3. **Limpe todo o storage** do site
-4. **Recarregue a página** (Ctrl+R)
-5. **Faça login novamente**
-
-### API retornando erro 401
-**Solução:**
-1. Verifique se o backend está rodando: `http://127.0.0.1:8000/docs`
-2. Verifique se `.env.local` do backend tem credenciais Supabase corretas
-3. Certifique-se que o token JWT é válido (não expirou)
-4. Reinicie o backend: `python3 -m uvicorn backend.main:app --port 8000 --reload`
-
-### "Port 5173 is already in use"
-**Solução:**
-```bash
-# Opção 1: Deixar Vite escolher outra porta
-npm run dev
-# Ele escolherá 5174, 5175, etc automaticamente
-
-# Opção 2: Usar outra porta explicitamente
-npm run dev -- --port 3000
-```
-
-### Build falhando com erros de tipos
-**Solução:**
-```bash
-# Limpe node_modules e reinstale
-rm -rf frontend/node_modules
-rm frontend/package-lock.json
-npm install
-
-# Execute o build novamente
-npm run build
-```
-
----
-
-## 📚 Scripts Disponíveis
-
-### Frontend
-```bash
-npm run dev          # Inicia servidor de desenvolvimento
-npm run build        # Build para produção
-npm run lint         # Verifica código (ESLint)
-npm run preview      # Preview do build local
-```
-
-### Backend
-```bash
-python3 -m uvicorn main:app --reload   # Inicia servidor com auto-reload
-python3 -m uvicorn main:app --port 8000 # Especifica porta
 ```
 
 ---
@@ -365,96 +277,17 @@ python3 -m uvicorn main:app --port 8000 # Especifica porta
 ## 📦 Dependências Principais
 
 ### Frontend
-- react@18 - UI library
-- react-router-dom - Roteamento
-- typescript - Type safety
-- tailwindcss - Styling
-- shadcn/ui - Componentes reutilizáveis
-- @supabase/supabase-js - Cliente Supabase
-- vite - Build tool
-- eslint - Linting
+`react`, `react-router-dom`, `@supabase/supabase-js`, `@tanstack/react-query`, `tailwindcss`, `zod`, `react-hook-form`, `@hookform/resolvers`, `lucide-react`, `recharts`, `date-fns`, `sonner`, `react-input-mask`, `cmdk`, `vaul`, `input-otp`
 
 ### Backend
-- fastapi - API framework
-- uvicorn - ASGI server
-- pydantic - Data validation
-- supabase - Database client
-- python-dotenv - Environment variables
-- pillow - Image generation
-
----
-
-## ✅ Recente Refatoração (v0.2.0)
-
-### 🧹 Limpeza de Código
-- ✅ Removidos 30 componentes UI não utilizados
-- ✅ Corrigidas importações não utilizadas (2 ícones removidos)
-- ✅ Removidos 3 endpoints API não utilizados
-- ✅ Consolidada função `slugify` (duplicação eliminada)
-- ✅ Build size reduzido em ~10%
-
-### 📊 Resultados
-- **Linhas removidas:** 800+
-- **Build time:** 6.22s ✓
-- **Linting:** ✓ Sem novos erros
-- **Test Coverage:** Em progresso
-
----
-
-## 🤝 Guia de Contribuição
-
-### Workflow Git
-
-```bash
-# 1. Certifique-se de estar na branch main
-git checkout main
-
-# 2. Atualize a branch local
-git pull origin main
-
-# 3. Crie uma branch para sua feature
-git checkout -b feature/sua-funcionalidade
-
-# 4. Implemente sua mudança
-# ... edite os arquivos ...
-
-# 5. Commit suas mudanças
-git add .
-git commit -m "feat: descrição clara da mudança"
-
-# 6. Push para o repositório remoto
-git push origin feature/sua-funcionalidade
-
-# 7. Crie um Pull Request no GitHub
-```
-
-### Convenção de Commits
-
-- `feat:` — Nova funcionalidade
-- `fix:` — Correção de bug
-- `refactor:` — Refatoração
-- `docs:` — Documentação
-- `test:` — Testes
-- `chore:` — Dependências, config
-
----
-
-## 🔒 Segurança
-
-**Nunca commite:**
-- `.env.local` (variáveis sensíveis)
-- Chaves privadas (service_role)
-- Tokens JWT
-- Credenciais de terceiros
-
-**Sempre use `.env.example` como template**
+`fastapi`, `uvicorn`, `supabase`, `pydantic`, `python-multipart`, `pillow`, `httpx`, `python-jose`, `python-dotenv`, `email-validator`
 
 ---
 
 ## 📄 Licença
 
-Projeto Acadêmico - Não comercial.
+Projeto Acadêmico — Não comercial.
 
-© 2026 Saint Luzia. Todos os direitos reservados.
+**© 2026 Saint Luzia · UFPI — Disciplina PDSI I**
 
-**Desenvolvido para a disciplina PDSI**
+Desenvolvido por [Raildom da Rocha Sobrinho](https://github.com/Raildom), [João Marcos Sousa Rufino Leal](https://github.com/JM3L0) e [Luma Maiara Holanda](https://github.com/lumamaiara) — Sistemas de Informação, UFPI
