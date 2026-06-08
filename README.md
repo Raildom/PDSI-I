@@ -161,19 +161,16 @@ make setup
 #### Frontend
 ```bash
 cd frontend
-# Crie .env.local com suas credenciais Supabase:
-# VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-# VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
+cp .env.example .env.local
+# Edite .env.local com suas credenciais Supabase
 npm install
 ```
 
 #### Backend
 ```bash
 cd backend
-# Crie .env.local com suas credenciais Supabase:
-# SUPABASE_URL=https://seu-projeto.supabase.co
-# SUPABASE_SERVICE_ROLE_KEY=sua-chave-service-role
-# SUPABASE_ANON_KEY=sua-chave-anon-opcional
+cp .env.example .env.local
+# Edite .env.local com suas credenciais Supabase
 pip install -r requirements.txt
 ```
 
@@ -182,6 +179,7 @@ pip install -r requirements.txt
 Abra um terminal e execute:
 
 ```bash
+cd backend
 python3 -m uvicorn main:app --port 8000 --reload
 ```
 
@@ -295,6 +293,9 @@ cd frontend
 # Verifique se .env.local existe
 ls -la .env.local
 
+# Se não existir, copie do exemplo:
+cp .env.example .env.local
+
 # Edite e preencha com suas credenciais:
 # VITE_SUPABASE_URL=https://seu-projeto.supabase.co
 # VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
@@ -355,9 +356,8 @@ npm run preview      # Preview do build local
 
 ### Backend
 ```bash
-python3 -m uvicorn main:app --reload   # Inicia servidor com auto-reload (na raiz)
-python3 -m uvicorn backend.main:app --reload   # Alternativa direta para o módulo backend
-python3 -m uvicorn main:app --port 8000   # Especifica porta
+python3 -m uvicorn main:app --reload   # Inicia servidor com auto-reload
+python3 -m uvicorn main:app --port 8000 # Especifica porta
 ```
 
 ---
@@ -447,7 +447,7 @@ git push origin feature/sua-funcionalidade
 - Tokens JWT
 - Credenciais de terceiros
 
-**Sempre use apenas `.env.local` para variáveis sensíveis**
+**Sempre use `.env.example` como template**
 
 ---
 

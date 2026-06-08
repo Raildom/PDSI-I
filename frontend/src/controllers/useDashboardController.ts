@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/controllers/useAuthController";
 import { toast } from "sonner";
 import { api } from "@/models/api";
@@ -13,7 +13,7 @@ export function useDashboardController() {
   const [contratoId, setContratoId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const carregarDados = useCallback(async () => {
+  const carregarDados = async () => {
     if (!user) return;
     try {
       const [perfil, contrato, etapasData] = await Promise.all([
@@ -32,9 +32,9 @@ export function useDashboardController() {
       setEtapas(etapasData ?? []);
     } catch { /* ignore */ }
     setLoading(false);
-  }, [user]);
+  };
 
-  useEffect(() => { carregarDados(); }, [carregarDados]);
+  useEffect(() => { carregarDados(); }, [user]);
 
   const toggleEtapa = async (etapa: Etapa) => {
     if (!user) return;

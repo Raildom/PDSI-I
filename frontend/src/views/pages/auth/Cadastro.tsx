@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import InputMask from "react-input-mask";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ShieldCheck, HeartHandshake, IdCard, Mail, Lock, Phone, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Logo } from "@/views/components/saint/Logo";
@@ -21,6 +22,10 @@ export default function Cadastro() {
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
+  // Validação extra para CPF e telefone
+  const isCpfValid = (cpf: string) => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
+  const isTelefoneValid = (tel: string) => /^(\(\d{2}\)\s?)?\d{4,5}-\d{4}$/.test(tel);
+
   useEffect(() => {
     funerariaModel.listAtivas().then(setFunerarias).catch(() => setFunerarias([]));
   }, []);
@@ -29,6 +34,18 @@ export default function Cadastro() {
     e.preventDefault();
     if (form.senha.length < 8) {
       toast.error("A senha deve ter no mínimo 8 caracteres");
+      return;
+    }
+    if (!form.nome || form.nome.length < 2) {
+      toast.error("Nome deve ter pelo menos 2 caracteres");
+      return;
+    }
+    if (form.cpf && !isCpfValid(form.cpf)) {
+      toast.error("CPF inválido. Use o formato 000.000.000-00");
+      return;
+    }
+    if (form.telefone && !isTelefoneValid(form.telefone)) {
+      toast.error("Telefone inválido. Use o formato (99) 99999-9999");
       return;
     }
     if (!form.funeraria_id) {
@@ -107,7 +124,7 @@ export default function Cadastro() {
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nome</Label>
                 <div className="relative">
                   <User className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <Input required className="pl-9 h-11" placeholder="Como no documento de identidade" value={form.nome} onChange={set("nome")} />
+                  <Input required minLength={2} maxLength={100} className="pl-9 h-11" placeholder="Como no documento de identidade" value={form.nome} onChange={set("nome")} />
                 </div>
               </div>
 
@@ -116,14 +133,30 @@ export default function Cadastro() {
                   <Label className="text-xs uppercase tracking-wider text-muted-foreground">CPF</Label>
                   <div className="relative">
                     <IdCard className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                    <Input className="pl-9 h-11" placeholder="000.000.000-00" value={form.cpf} onChange={set("cpf")} />
+                    <InputMask
+                      mask="999.999.999-99"
+                      value={form.cpf}
+                      onChange={set("cpf")}
+                    >
+                      {(inputProps: any) => (
+                        <Input {...inputProps} className="pl-9 h-11" placeholder="000.000.000-00" />
+                      )}
+                    </InputMask>
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs uppercase tracking-wider text-muted-foreground">Telefone</Label>
                   <div className="relative">
                     <Phone className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                    <Input className="pl-9 h-11" placeholder="(00) 00000-0000" value={form.telefone} onChange={set("telefone")} />
+                    <InputMask
+                      mask="(99) 99999-9999"
+                      value={form.telefone}
+                      onChange={set("telefone")}
+                    >
+                      {(inputProps: any) => (
+                        <Input {...inputProps} className="pl-9 h-11" placeholder="(00) 00000-0000" />
+                      )}
+                    </InputMask>
                   </div>
                 </div>
               </div>
@@ -132,7 +165,7 @@ export default function Cadastro() {
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label>
                 <div className="relative">
                   <Mail className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <Input type="email" required className="pl-9 h-11" placeholder="exemplo@email.com" value={form.email} onChange={set("email")} />
+                  <Input type="email" required minLength={5} maxLength={100} className="pl-9 h-11" placeholder="exemplo@email.com" value={form.email} onChange={set("email")} />
                 </div>
               </div>
 
@@ -157,7 +190,7 @@ export default function Cadastro() {
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Senha</Label>
                 <div className="relative">
                   <Lock className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <Input type={showSenha ? "text" : "password"} required minLength={8} className="pl-9 pr-9 h-11" placeholder="Mínimo 8 caracteres" value={form.senha} onChange={set("senha")} />
+                  <Input type={showSenha ? "text" : "password"} required minLength={8} maxLength={128} className="pl-9 pr-9 h-11" placeholder="Mínimo 8 caracteres" value={form.senha} onChange={set("senha")} />
                   <button
                     type="button"
                     aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}

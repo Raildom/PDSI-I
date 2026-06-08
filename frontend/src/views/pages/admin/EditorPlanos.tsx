@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import InputMask from "react-input-mask";
 import { Edit3, Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { Input } from "@/views/components/ui/input";
@@ -15,6 +16,7 @@ export default function EditorPlanos() {
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [selId, setSelId] = useState<string | null>(null);
   const [edit, setEdit] = useState<Partial<Plano>>({});
+  const [valorMensalText, setValorMensalText] = useState("R$ 0,00");
   const [beneficiosText, setBeneficiosText] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,42 +43,55 @@ export default function EditorPlanos() {
     return partes.join("\n\n");
   };
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = async () => {
     try {
       const data = await api.planos.listarTodos();
       setPlanos(data ?? []);
-      setSelId((current) => {
-        if (current) return current;
-        if (data?.[0]) {
-          setEdit(data[0]);
-          return data[0].id;
-        }
-        return current;
-      });
+      if (!selId && data?.[0]) { setSelId(data[0].id); setEdit(data[0]); }
     } catch { /* ignore */ }
     setLoading(false);
-  }, []);
+  };
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => { fetchAll(); }, []);
 
   const select = (p: Plano) => {
     setSelId(p.id);
     setEdit(p);
+    setValorMensalText(`R$ ${Number(p.valor_mensal).toFixed(2).replace(".", ",")}`);
     setBeneficiosText(toBeneficiosText(p.beneficios));
   };
   const novo = () => {
     setSelId(null);
     setEdit({ titulo: "", descricao: "", valor_mensal: 0, destaque: false, ativo: true, beneficios: {} });
+    setValorMensalText("R$ 0,00");
     setBeneficiosText("");
+  };
+
+  const parseCurrency = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (!digits) return 0;
+    return Number(digits) / 100;
   };
 
   const salvar = async () => {
     setSaving(true);
     try {
+      if (!edit.titulo || edit.titulo.trim().length < 2) {
+        toast.error("Título deve ter pelo menos 2 caracteres");
+        setSaving(false);
+        return;
+      }
+      const valorMensal = parseCurrency(valorMensalText);
+      if (Number.isNaN(valorMensal) || valorMensal < 0) {
+        toast.error("Informe um valor mensal válido");
+        setSaving(false);
+        return;
+      }
       const payload = {
         titulo: edit.titulo!, descricao: edit.descricao!, valor_mensal: Number(edit.valor_mensal ?? 0),
         destaque: !!edit.destaque, ativo: edit.ativo ?? true, beneficios: beneficiosText.trim() || null,
       };
+      payload.valor_mensal = valorMensal;
       if (selId) { await api.planos.atualizar(selId, payload); }
       else { await api.planos.criar(payload); }
       toast.success("Plano salvo"); fetchAll();
@@ -115,13 +130,29 @@ export default function EditorPlanos() {
         <section className="rounded-3xl bg-card border border-border p-7 shadow-soft space-y-5 self-start">
           <div className="flex items-center gap-2"><Edit3 className="size-5" /><h2 className="font-serif text-2xl">{selId ? "Editar Plano" : "Novo Plano"}</h2></div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Título</Label><Input value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Custo Mensal (R$)</Label><Input type="number" step="0.01" value={edit.valor_mensal ?? 0} onChange={(e) => setEdit({ ...edit, valor_mensal: Number(e.target.value) })} /></div>
+            <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Título</Label><Input maxLength={100} value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
+            <div className="space-y-1.5">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Custo Mensal (R$)</Label>
+              <InputMask
+                mask="R$ 999.999.999,99"
+                value={valorMensalText}
+                onChange={(e) => setValorMensalText(e.target.value)}
+              >
+                {(inputProps: any) => (
+                  <Input
+                    {...inputProps}
+                    inputMode="numeric"
+                    className="pl-3"
+                    placeholder="R$ 0,00"
+                  />
+                )}
+              </InputMask>
+            </div>
           </div>
-          <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Textarea rows={3} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Textarea rows={3} maxLength={300} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
           <div className="space-y-1.5">
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">Benefícios</Label>
-            <Textarea rows={6} value={beneficiosText} onChange={(e) => setBeneficiosText(e.target.value)} />
+            <Textarea rows={6} maxLength={1000} value={beneficiosText} onChange={(e) => setBeneficiosText(e.target.value)} />
             <p className="text-xs text-muted-foreground">Descreva os benefícios em texto livre.</p>
           </div>
           <div className="flex items-center gap-6">

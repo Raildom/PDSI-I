@@ -35,7 +35,7 @@ async def criar_falecido(body: FalecidoCreate, user: dict = Depends(get_current_
 
 @router.put("/{falecido_id}")
 async def atualizar_falecido(falecido_id: str, body: FalecidoUpdate, user: dict = Depends(get_current_user)):
-    update_data = {k: v for k, v in body.model_dump().items() if v is not None}
+    update_data = {k: v for k, v in body.dict().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="Nenhum dado para atualizar")
 

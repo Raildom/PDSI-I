@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Check, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { useAuth } from "@/controllers/useAuthController";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +28,7 @@ export default function Plano() {
   const [showTroca, setShowTroca] = useState(false);
   const [cancelando, setCancelando] = useState(false);
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = async () => {
     if (!user) return;
     setLoading(true);
     setPlanos([]);
@@ -54,9 +54,9 @@ export default function Plano() {
       setContrato(null);
     }
     setLoading(false);
-  }, [user]);
+  };
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => { fetchAll(); }, [user]);
 
   const contratar = async (plano: Plano) => {
     if (!user) return;
@@ -115,9 +115,9 @@ export default function Plano() {
           {planos.map((p) => (
             <article key={p.id} className={`rounded-3xl bg-card border p-7 shadow-soft flex flex-col ${p.destaque ? "border-primary shadow-elegant" : "border-border"}`}>
               {p.destaque && <span className="text-[10px] uppercase tracking-widest bg-secondary px-2 py-0.5 rounded-full self-start mb-2">Destaque</span>}
-              <h3 className="font-serif text-2xl">{p.titulo}</h3>
-              <p className="text-sm text-muted-foreground mt-2 flex-1">{p.descricao}</p>
-              <div className="font-serif text-3xl mt-5">R$ {Number(p.valor_mensal).toFixed(2).replace(".", ",")}<span className="text-xs text-muted-foreground font-sans"> /mês</span></div>
+              <h3 className="font-serif text-2xl" title={p.titulo}>{p.titulo}</h3>
+              <p className="text-sm text-muted-foreground mt-2 flex-1" title={p.descricao}>{p.descricao}</p>
+              <div className="font-serif text-3xl mt-5">R$ <input type="number" min={0} step={0.01} value={p.valor_mensal} readOnly className="w-24 bg-transparent border-none outline-none text-inherit" /><span className="text-xs text-muted-foreground font-sans"> /mês</span></div>
               <Button onClick={() => contratar(p)} disabled={contratando === p.id} className="rounded-xl mt-5">
                 {contratando === p.id && <Loader2 className="size-4 animate-spin" />} Contratar
               </Button>

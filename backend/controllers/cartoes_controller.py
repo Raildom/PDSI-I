@@ -24,6 +24,7 @@ async def criar_cartao(body: CartaoCreate, user: dict = Depends(get_current_user
             "publicado": body.publicado or False,
             "falecido_id": body.falecido_id,
             "foto_path": body.foto_path,
+            "template_usado": body.template_usado,
         }
         result = CartoesModel.atualizar(existing["id"], user["id"], update_data)
         if result is None or not result.data:
@@ -34,6 +35,7 @@ async def criar_cartao(body: CartaoCreate, user: dict = Depends(get_current_user
         "user_id": user["id"], "titulo": body.titulo, "mensagem": body.mensagem,
         "slug": body.slug, "publicado": body.publicado or False, "falecido_id": body.falecido_id,
         "foto_path": body.foto_path,
+        "template_usado": body.template_usado,
     }
     try:
         result = CartoesModel.criar(payload)
@@ -67,6 +69,24 @@ async def download_cartao(slug: str):
     cartao = CartoesModel.get_por_slug(slug)
     if not cartao:
         raise HTTPException(status_code=404, detail="Cartão não encontrado")
+
+    # Se o join com falecidos não retornou dados mas temos falecido_id,
+    # buscar o falecido separadamente para garantir que as datas apareçam
+    falecido_data = cartao.get("falecidos")
+    falecido_id = cartao.get("falecido_id")
+    if not falecido_data and falecido_id:
+        from ..models.falecidos_model import FalecidosModel
+        try:
+            result = FalecidosModel.get_by_id(falecido_id)
+            if result:
+                cartao["falecidos"] = {
+                    "nome": result.get("nome"),
+                    "data_nascimento": result.get("data_nascimento"),
+                    "data_falecimento": result.get("data_falecimento"),
+                }
+        except Exception:
+            pass
+
     buf = CartoesModel.gerar_imagem_cartao(cartao)
     return StreamingResponse(
         buf,

@@ -71,8 +71,21 @@ export default function Documentos() {
                 <div className="flex items-center gap-2 mt-3">
                   <input
                     ref={(el) => (localRefs.current[t.id] = el)}
-                    type="file" className="hidden" accept="image/*,application/pdf"
-                    onChange={(e) => e.target.files?.[0] && upload(t.id, e.target.files[0])}
+                    type="file"
+                    className="hidden"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file && !["application/pdf", "image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
+                        alert("Apenas PDF ou imagem (jpg, png) são aceitos.");
+                        return;
+                      }
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        alert("Arquivo muito grande (máx 5MB)");
+                        return;
+                      }
+                      file && upload(t.id, file);
+                    }}
                   />
                   <Button size="sm" variant={status === "aprovado" ? "outline" : "default"} className="rounded-lg"
                     disabled={uploadingId === t.id} onClick={() => localRefs.current[t.id]?.click()}>

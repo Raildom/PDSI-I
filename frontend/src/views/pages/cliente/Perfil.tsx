@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import InputMask from "react-input-mask";
 import { Mail, Phone, LogOut, Bell, Shield, Loader2 } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { Input } from "@/views/components/ui/input";
@@ -13,6 +14,7 @@ import type { Funeraria } from "@/models/types";
 
 export default function Perfil() {
   const { user, signOut } = useAuth();
+
   const nav = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,8 +43,21 @@ export default function Perfil() {
     funerariaModel.listAtivas().then(setFunerarias).catch(() => setFunerarias([]));
   }, []);
 
+  const isTelefoneValid = (tel: string) => {
+    const digits = tel.replace(/\D/g, "");
+    return digits.length >= 10 && digits.length <= 11;
+  };
+
   const salvar = async () => {
     if (!user) return;
+    if (!form.nome || form.nome.trim().length < 2) {
+      toast.error("Nome deve ter pelo menos 2 caracteres");
+      return;
+    }
+    if (form.telefone && !isTelefoneValid(form.telefone)) {
+      toast.error("Telefone inválido. Use o formato (99) 99999-9999");
+      return;
+    }
     setSaving(true);
     try {
       if (!form.funeraria_id) {
@@ -78,9 +93,9 @@ export default function Perfil() {
         ) : (
           <>
             <div className="grid sm:grid-cols-2 gap-4 mt-7">
-              <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Nome</Label><Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Nome</Label><Input value={form.nome} minLength={2} maxLength={100} required onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Como no documento de identidade" /></div>
               <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label><div className="relative"><Mail className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" /><Input className="pl-9" value={form.email} disabled /></div></div>
-              <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Telefone</Label><div className="relative"><Phone className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" /><Input className="pl-9" value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} /></div></div>
+              <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Telefone</Label><div className="relative"><Phone className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" /><InputMask mask="(99) 99999-9999" value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} >{(inputProps: any) => (<Input {...inputProps} className="pl-9" />)}</InputMask></div></div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Funerária</Label>
                 <Select value={form.funeraria_id} onValueChange={(v) => setForm({ ...form, funeraria_id: v })}>

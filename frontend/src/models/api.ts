@@ -33,6 +33,7 @@ async function request<T = any>(
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers,
+    credentials: "include", // Enviar e receber cookies automaticamente
   });
 
   if (!res.ok) {
@@ -52,18 +53,9 @@ async function request<T = any>(
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 export const api = {
-  auth: {
-    register: (data: { email: string; password: string; nome: string; telefone?: string; cpf?: string }) =>
-      request("/auth/register", { method: "POST", body: JSON.stringify(data) }),
-    login: (data: { email: string; password: string }) =>
-      request("/auth/login", { method: "POST", body: JSON.stringify(data) }),
-  },
-
   // ── Perfil ────────────────────────────────────────────────────────────
   perfil: {
     get: () => request("/perfil"),
-    update: (data: { nome?: string; telefone?: string; funeraria_id?: string | null }) =>
-      request("/perfil", { method: "PUT", body: JSON.stringify(data) }),
   },
 
   // ── Planos ────────────────────────────────────────────────────────────

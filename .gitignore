@@ -32,4 +32,8 @@ frontend/.env
 frontend/.env.local
 .env
 .env.local
-.venv/
+
+RELATORIO_APRESENTACAO.md
+RELATORIO_APRESENTACAO.pdf
+MAPA_REQUISITOS.pdf
+MAPA_REQUISITOS.md

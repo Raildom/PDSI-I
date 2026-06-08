@@ -42,12 +42,12 @@ export default function CartaoLutoView() {
             </div>
           </div>
 
-          <div className="space-y-1.5"><Label>Nome</Label><Input value={state.titulo} onChange={(e) => actions.setTitulo(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Nome</Label><Input maxLength={100} value={state.titulo} onChange={(e) => actions.setTitulo(e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Nascimento</Label><Input type="date" value={state.nasc} onChange={(e) => actions.setNasc(e.target.value)} /></div>
             <div className="space-y-1.5"><Label>Falecimento</Label><Input type="date" value={state.fal} onChange={(e) => actions.setFal(e.target.value)} /></div>
           </div>
-          <div className="space-y-1.5"><Label>Mensagem</Label><Textarea rows={4} value={state.mensagem} onChange={(e) => actions.setMensagem(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Mensagem</Label><Textarea rows={4} maxLength={500} value={state.mensagem} onChange={(e) => actions.setMensagem(e.target.value)} /></div>
 
           <div className="flex items-center justify-between rounded-2xl border border-border p-4">
             <div><div className="font-medium text-sm">Publicar cartão</div><div className="text-xs text-muted-foreground">Permite acesso público via link.</div></div>

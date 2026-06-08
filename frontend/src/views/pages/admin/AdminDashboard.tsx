@@ -41,7 +41,7 @@ export default function AdminDashboard() {
               </div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mt-5">{c.t}</div>
               <div className="font-serif text-2xl mt-1">{c.d}</div>
-              <Button asChild className="w-full mt-4 rounded-xl"><Link to={c.to}>{c.cta}</Link></Button>
+              <Button asChild className="w-full mt-4 rounded-xl text-center"><Link to={c.to}>{c.cta}</Link></Button>
             </div>
           ))}
         </div>

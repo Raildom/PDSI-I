@@ -21,7 +21,7 @@ from .controllers import (
 
 app = FastAPI(
     title="Saint Luzia API",
-    description="API REST para a plataforma de gestão funerária Saint Luzia",
+    description="API REST para a plataforma de gestão funerária Saint Luzia (Arquitetura MVC)",
     version="1.1.0",
 )
 
@@ -31,6 +31,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Set-Cookie"],  # Expor Set-Cookie header
 )
 
 app.include_router(auth_controller.router)
