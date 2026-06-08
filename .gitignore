@@ -37,3 +37,27 @@ RELATORIO_APRESENTACAO.md
 RELATORIO_APRESENTACAO.pdf
 MAPA_REQUISITOS.pdf
 MAPA_REQUISITOS.md
+
+# Frontend-specific generated files
+/frontend/dist/
+/frontend/node_modules/
+/frontend/.cache/
+/frontend/.parcel-cache/
+/frontend/bun.lockb
+
+# Python virtual envs and build artefacts
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Misc caches and build artefacts
+.cache/
+.turbo/
+.next/
+/.vercel/
