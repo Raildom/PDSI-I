@@ -17,6 +17,7 @@ from .controllers import (
     admin_controller,
     processos_controller,
     super_admin_controller,
+    funerarias_controller,
 )
 
 app = FastAPI(
@@ -53,6 +54,7 @@ app.include_router(cartoes_controller.router)
 app.include_router(admin_controller.router)
 app.include_router(processos_controller.router)
 app.include_router(super_admin_controller.router)
+app.include_router(funerarias_controller.router)
 
 @app.get("/api/health")
 async def health():

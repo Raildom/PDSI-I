@@ -9,7 +9,7 @@ import { Label } from "@/views/components/ui/label";
 import { Checkbox } from "@/views/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/views/components/ui/select";
 import { supabase } from "@/models/supabase/client";
-import { funerariaModel } from "@/models/funerariaModel";
+import { api } from "@/models/api";
 import type { Funeraria } from "@/models/types";
 import { toast } from "sonner";
 
@@ -27,7 +27,9 @@ export default function Cadastro() {
   const isTelefoneValid = (tel: string) => /^(\(\d{2}\)\s?)?\d{4,5}-\d{4}$/.test(tel);
 
   useEffect(() => {
-    funerariaModel.listAtivas().then(setFunerarias).catch(() => setFunerarias([]));
+    api.funerarias.listarAtivas()
+      .then((data) => setFunerarias(data as Funeraria[]))
+      .catch(() => setFunerarias([]));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

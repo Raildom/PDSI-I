@@ -71,6 +71,11 @@ export const api = {
     get: () => request("/perfil"),
   },
 
+  // ── Funerárias (público) ───────────────────────────────────────────
+  funerarias: {
+    listarAtivas: () => request("/funerarias/ativas"),
+  },
+
   // ── Planos ────────────────────────────────────────────────────────────
   planos: {
     listar: () => request("/planos"),
