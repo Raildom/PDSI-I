@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import InputMask from "react-input-mask";
 import { Edit3, Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/views/components/ui/button";
 import { Input } from "@/views/components/ui/input";
@@ -16,7 +15,7 @@ export default function EditorPlanos() {
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [selId, setSelId] = useState<string | null>(null);
   const [edit, setEdit] = useState<Partial<Plano>>({});
-  const [valorMensalText, setValorMensalText] = useState("R$ 0,00");
+  const [valorMensalText, setValorMensalText] = useState("");
   const [beneficiosText, setBeneficiosText] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,20 +56,39 @@ export default function EditorPlanos() {
   const select = (p: Plano) => {
     setSelId(p.id);
     setEdit(p);
-    setValorMensalText(`R$ ${Number(p.valor_mensal).toFixed(2).replace(".", ",")}`);
+    setValorMensalText(formatCurrency(p.valor_mensal));
     setBeneficiosText(toBeneficiosText(p.beneficios));
   };
   const novo = () => {
     setSelId(null);
     setEdit({ titulo: "", descricao: "", valor_mensal: 0, destaque: false, ativo: true, beneficios: {} });
-    setValorMensalText("R$ 0,00");
+    setValorMensalText("");
     setBeneficiosText("");
+  };
+
+  const formatCurrency = (value: number) => {
+    const safeValue = Number.isFinite(value) ? value : 0;
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(safeValue);
   };
 
   const parseCurrency = (value: string) => {
     const digits = value.replace(/\D/g, "");
-    if (!digits) return 0;
+    if (!digits) return Number.NaN;
     return Number(digits) / 100;
+  };
+
+  const handleValorMensalChange = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (!digits) {
+      setValorMensalText("");
+      return;
+    }
+    setValorMensalText(formatCurrency(Number(digits) / 100));
   };
 
   const salvar = async () => {
@@ -82,7 +100,7 @@ export default function EditorPlanos() {
         return;
       }
       const valorMensal = parseCurrency(valorMensalText);
-      if (Number.isNaN(valorMensal) || valorMensal < 0) {
+      if (valorMensalText.trim().length < 1 || Number.isNaN(valorMensal) || valorMensal < 0) {
         toast.error("Informe um valor mensal válido");
         setSaving(false);
         return;
@@ -133,20 +151,15 @@ export default function EditorPlanos() {
             <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Título</Label><Input maxLength={100} value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
             <div className="space-y-1.5">
               <Label className="text-xs uppercase tracking-wider text-muted-foreground">Custo Mensal (R$)</Label>
-              <InputMask
-                mask="R$ 999.999.999,99"
+              <Input
+                inputMode="numeric"
+                minLength={1}
+                required
+                className="pl-3"
+                placeholder="R$ 0,00"
                 value={valorMensalText}
-                onChange={(e) => setValorMensalText(e.target.value)}
-              >
-                {(inputProps: any) => (
-                  <Input
-                    {...inputProps}
-                    inputMode="numeric"
-                    className="pl-3"
-                    placeholder="R$ 0,00"
-                  />
-                )}
-              </InputMask>
+                onChange={(e) => handleValorMensalChange(e.target.value)}
+              />
             </div>
           </div>
           <div className="space-y-1.5"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Textarea rows={3} maxLength={300} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
